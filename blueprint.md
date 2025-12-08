@@ -46,10 +46,11 @@ This document outlines the design, features, and development plan for the E-comm
 *   **Image Picker:** Users can add up to 10 product images from their device's gallery.
 *   **Image Carousel:** Selected images are displayed in a carousel with a counter and the option to remove individual images.
 *   **Swipe Indicator:** A subtle, non-looping swipe indicator shows the current position in the image carousel.
-*   **Form Validation:** The "Product Name" and "Price" fields are required, and the form provides real-time validation feedback.
+*   **Form Validation:** The "Product Name" and "Price" fields are required. The form validates on user interaction and displays an error message if the fields are empty.
 *   **"Add Product" Button:**
-    *   The button is enabled only when all required fields are filled and at least one image is selected.
-    *   The button's background is always a shade of the primary color, with a semi-transparent version for the inactive state.
+    *   The button is always active.
+    *   When clicked, the button triggers validation and displays error messages if the required fields are empty.
+    *   The button's background is always a solid primary color.
     *   The button has no box shadow and is elevated by 2 pixels from the bottom.
 *   **Title:** The screen's title is "New Product."
 
@@ -68,3 +69,6 @@ Refine the "Add Product" screen's user experience by improving validation, butto
 5.  **Disable Carousel Looping:** Set `enableInfiniteScroll` to `false` in the `CarouselOptions`.
 6.  **Adjust Swipe Indicator Size:** Reduce the `dotHeight` and `dotWidth` of the `ScrollingDotsEffect`.
 7.  **Adjust Button Position:** Wrap the `Padding` widget of the "Add Product" button in a `Transform.translate` widget to move it up by 2 pixels.
+8.  **Set Solid Button Color:** The "Add Product" button will now have a solid primary color, even when inactive.
+9.  **Restore On-Click Validation:** The "Add Product" button will now always be active and will trigger validation on click, displaying error messages if the required fields are empty.
+10. **Fix Typo:** Corrected the typo from `stylefrom` to `styleFrom` in the `ElevatedButton`'s style property.

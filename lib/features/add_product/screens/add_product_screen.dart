@@ -18,43 +18,20 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final ImagePicker _picker = ImagePicker();
   final List<XFile> _images = [];
   int _activePage = 0;
-  bool _isButtonEnabled = false;
 
   final _productNameController = TextEditingController();
   final _priceController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _productNameController.addListener(_validateForm);
-    _priceController.addListener(_validateForm);
-  }
-
-  @override
   void dispose() {
-    _productNameController.removeListener(_validateForm);
-    _priceController.removeListener(_validateForm);
     _productNameController.dispose();
     _priceController.dispose();
     super.dispose();
   }
 
-  void _validateForm() {
-    final isFormValid = _images.isNotEmpty &&
-        _productNameController.text.isNotEmpty &&
-        _priceController.text.isNotEmpty;
-    if (_isButtonEnabled != isFormValid) {
-      setState(() {
-        _isButtonEnabled = isFormValid;
-      });
-    }
-  }
-
   void _attemptSave() {
     // This triggers the validation and shows error messages
-    final isValid = _formKey.currentState!.validate();
-    // Only proceed with saving if the form is valid
-    if (isValid) {
+    if (_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Product added successfully!')),
       );
@@ -78,8 +55,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       setState(() {
         _images.addAll(pickedFiles);
       });
-      _validateForm();
-      // Manually trigger validation for the image field after picking
       _formKey.currentState?.validate();
     }
   }
@@ -91,8 +66,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
         _activePage = _images.length - 1;
       }
     });
-    _validateForm();
-    // Manually trigger validation for the image field after removing
     _formKey.currentState?.validate();
   }
 
@@ -222,9 +195,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               onPressed: _attemptSave,
               style: ElevatedButton.styleFrom(
                 elevation: 0,
-                backgroundColor: _isButtonEnabled
-                    ? Theme.of(context).primaryColor
-                    : Theme.of(context).primaryColor.withAlpha(128),
+                backgroundColor: Theme.of(context).primaryColor,
                 foregroundColor: Theme.of(context).colorScheme.onPrimary,
               ),
               child: const Text('Add Product'),
