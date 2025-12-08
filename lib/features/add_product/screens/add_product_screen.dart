@@ -2,8 +2,11 @@
 import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:myapp/models/product_model.dart';
+import 'package:myapp/providers/product_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class AddProductScreen extends StatefulWidget {
@@ -21,17 +24,29 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   final _productNameController = TextEditingController();
   final _priceController = TextEditingController();
+  final _stockController = TextEditingController();
 
   @override
   void dispose() {
     _productNameController.dispose();
     _priceController.dispose();
+    _stockController.dispose();
     super.dispose();
   }
 
   void _attemptSave() {
-    // This triggers the validation and shows error messages
     if (_formKey.currentState!.validate()) {
+      final stockValue = _stockController.text.isNotEmpty ? int.parse(_stockController.text) : null;
+
+      final newProduct = Product(
+        name: _productNameController.text,
+        price: double.parse(_priceController.text),
+        stock: stockValue,
+        images: _images.map((image) => image.path).toList(),
+      );
+
+      Provider.of<ProductProvider>(context, listen: false).addProduct(newProduct);
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Product added successfully!')),
       );
@@ -175,6 +190,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
+                controller: _stockController,
                 decoration: const InputDecoration(
                   labelText: 'Stock',
                   border: OutlineInputBorder(),

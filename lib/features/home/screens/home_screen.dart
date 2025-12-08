@@ -1,4 +1,6 @@
 
+import 'package:myapp/features/add_product/widgets/product_card.dart';
+import 'package:myapp/providers/product_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +14,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final storeProvider = Provider.of<StoreProvider>(context);
+    final productProvider = Provider.of<ProductProvider>(context);
 
     // Determine the leading widget consistently
     Widget leadingContent;
@@ -56,9 +59,17 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(
-        child: Text('Welcome to your store!'),
-      ),
+      body: productProvider.products.isEmpty
+          ? const Center(
+              child: Text('No products yet. Add one!'),
+            )
+          : ListView.builder(
+              itemCount: productProvider.products.length,
+              itemBuilder: (context, index) {
+                final product = productProvider.products[index];
+                return ProductCard(product: product);
+              },
+            ),
       floatingActionButton: const AddProductFab(),
     );
   }
