@@ -18,6 +18,49 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final ImagePicker _picker = ImagePicker();
   final List<XFile> _images = [];
   int _activePage = 0;
+  bool _isButtonEnabled = false;
+
+  final _productNameController = TextEditingController();
+  final _priceController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _productNameController.addListener(_validateForm);
+    _priceController.addListener(_validateForm);
+  }
+
+  @override
+  void dispose() {
+    _productNameController.removeListener(_validateForm);
+    _priceController.removeListener(_validateForm);
+    _productNameController.dispose();
+    _priceController.dispose();
+    super.dispose();
+  }
+
+  void _validateForm() {
+    final isFormValid = _images.isNotEmpty &&
+        _productNameController.text.isNotEmpty &&
+        _priceController.text.isNotEmpty;
+    if (_isButtonEnabled != isFormValid) {
+      setState(() {
+        _isButtonEnabled = isFormValid;
+      });
+    }
+  }
+
+  void _attemptSave() {
+    // This triggers the validation and shows error messages
+    final isValid = _formKey.currentState!.validate();
+    // Only proceed with saving if the form is valid
+    if (isValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Product added successfully!')),
+      );
+      Navigator.of(context).pop();
+    }
+  }
 
   Future<void> _pickImages() async {
     if (_images.length >= 10) {
@@ -35,6 +78,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       setState(() {
         _images.addAll(pickedFiles);
       });
+      _validateForm();
     }
   }
 
@@ -45,6 +89,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         _activePage = _images.length - 1;
       }
     });
+    _validateForm();
   }
 
   @override
@@ -52,38 +97,18 @@ class _AddProductScreenState extends State<AddProductScreen> {
     final titleTextStyle = Theme.of(context).textTheme.titleLarge;
     return Scaffold(
       appBar: AppBar(
-        leading: TextButton(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(
-            'Cancel',
-            style: TextStyle(color: Theme.of(context).primaryColor),
-          ),
         ),
-        leadingWidth: 100,
         title: Text(
-          'Product',
+          'New Product',
           style: titleTextStyle?.copyWith(
             fontWeight: FontWeight.bold,
             fontSize: (titleTextStyle.fontSize ?? 22.0) - 1.0,
           ),
         ),
         centerTitle: true,
-        actions: [
-          TextButton(
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Product added successfully!')),
-                );
-                Navigator.of(context).pop();
-              }
-            },
-            child: Text(
-              'Save',
-              style: TextStyle(color: Theme.of(context).primaryColor),
-            ),
-          ),
-        ],
       ),
       body: Form(
         key: _formKey,
@@ -124,6 +149,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
               const SizedBox(height: 24),
               TextFormField(
+                controller: _productNameController,
                 decoration: const InputDecoration(
                   labelText: 'Product Name',
                   border: OutlineInputBorder(),
@@ -134,7 +160,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   }
                   return null;
                 },
-                autovalidateMode: AutovalidateMode.onUserInteraction,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -146,6 +171,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
+                controller: _priceController,
                 decoration: const InputDecoration(
                   labelText: 'Price',
                   border: OutlineInputBorder(),
@@ -158,7 +184,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   }
                   return null;
                 },
-                autovalidateMode: AutovalidateMode.onUserInteraction,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -178,6 +203,25 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 keyboardType: TextInputType.number,
               ),
             ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: _attemptSave,
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: _isButtonEnabled
+                  ? Theme.of(context).primaryColor
+                  : Colors.grey.shade300,
+              foregroundColor: _isButtonEnabled
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Colors.grey.shade500,
+            ),
+            child: const Text('Add Product'),
           ),
         ),
       ),
@@ -209,9 +253,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         left: 8,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.black.withAlpha(128),
                             borderRadius: BorderRadius.circular(100),
@@ -281,8 +325,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
               label: const Text('Add More Photos'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                backgroundColor: Colors.grey.shade200,
+                foregroundColor: Colors.black87,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(100),
                 ),
@@ -308,20 +352,22 @@ class _AddProductScreenState extends State<AddProductScreen> {
             color: backgroundColor,
             borderRadius: BorderRadius.circular(8.0),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.add_a_photo_outlined,
-                size: 64,
-                color: Colors.grey.shade600,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Add up to 10 Photos',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
-              ),
-            ],
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.add_a_photo_outlined,
+                  size: 64,
+                  color: Colors.grey.shade600,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Add up to 10 Photos',
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                ),
+              ],
+            ),
           ),
         ),
       ),
