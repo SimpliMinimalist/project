@@ -34,21 +34,26 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _scrollListener() {
-    final userScrollDirection = _scrollController.position.userScrollDirection;
-    // Hide the FAB when scrolling down
-    if (userScrollDirection == ScrollDirection.reverse) {
-      if (_isFabVisible) {
-        setState(() {
-          _isFabVisible = false;
-        });
-      }
-    } 
-    // Show the FAB when scrolling up
-    else if (userScrollDirection == ScrollDirection.forward) {
+    final position = _scrollController.position;
+    final userScrollDirection = position.userScrollDirection;
+
+    // Always show the FAB at the top or bottom of the list
+    if (position.atEdge) {
       if (!_isFabVisible) {
-        setState(() {
-          _isFabVisible = true;
-        });
+        setState(() => _isFabVisible = true);
+      }
+    } else {
+      // Hide the FAB when scrolling down in the middle of the list
+      if (userScrollDirection == ScrollDirection.reverse) {
+        if (_isFabVisible) {
+          setState(() => _isFabVisible = false);
+        }
+      } 
+      // Show the FAB when scrolling up in the middle of the list
+      else if (userScrollDirection == ScrollDirection.forward) {
+        if (!_isFabVisible) {
+          setState(() => _isFabVisible = true);
+        }
       }
     }
   }

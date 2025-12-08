@@ -65,3 +65,4 @@ Refine the home screen's scrolling behavior and animations for a smoother user e
 1.  **Smoother App Bar Hiding:** The `snap` property was removed from the `SliverAppBar` to prevent it from reappearing abruptly at the top of the scroll view.
 2.  **Rotation-Free FAB Animation:** The default rotation animation for the Floating Action Button has been replaced with a simple fade-in/fade-out transition using `AnimatedSwitcher` for a cleaner look.
 3.  **Code Style Correction:** A lint warning was addressed by reordering the `child` property in the `FadeTransition` widget to adhere to best practices.
+4.  **FAB Overscroll Bug Fix:** The scroll listener logic was improved to correctly handle overscroll conditions. The FAB now remains visible when the user reaches the top or bottom of the scroll view, preventing it from disappearing unexpectedly.
