@@ -79,6 +79,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
         _images.addAll(pickedFiles);
       });
       _validateForm();
+      // Manually trigger validation for the image field after picking
+      _formKey.currentState?.validate();
     }
   }
 
@@ -90,6 +92,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
       }
     });
     _validateForm();
+    // Manually trigger validation for the image field after removing
+    _formKey.currentState?.validate();
   }
 
   @override
@@ -118,13 +122,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               FormField<List<XFile>>(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (_images.isEmpty) {
                     return 'Please select at least one image.';
                   }
                   return null;
                 },
-                initialValue: _images,
                 builder: (formFieldState) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +136,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       _images.isEmpty
                           ? _buildAddPhotoImage(formFieldState.hasError)
                           : _buildImageCarousel(),
-                      if (formFieldState.hasError && _images.isEmpty)
+                      if (formFieldState.hasError)
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0, left: 12.0),
                           child: Text(
@@ -160,6 +164,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   }
                   return null;
                 },
+                autovalidateMode: AutovalidateMode.onUserInteraction,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -184,6 +189,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   }
                   return null;
                 },
+                autovalidateMode: AutovalidateMode.onUserInteraction,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -216,10 +222,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
               elevation: 0,
               backgroundColor: _isButtonEnabled
                   ? Theme.of(context).primaryColor
-                  : Colors.grey.shade300,
-              foregroundColor: _isButtonEnabled
-                  ? Theme.of(context).colorScheme.onPrimary
-                  : Colors.grey.shade500,
+                  : Theme.of(context).primaryColor.withAlpha(128),
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
             ),
             child: const Text('Add Product'),
           ),
@@ -291,7 +295,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               height: double.infinity,
               viewportFraction: 1.0,
               enlargeCenterPage: false,
-              enableInfiniteScroll: true,
+              enableInfiniteScroll: false,
               onPageChanged: (index, reason) {
                 setState(() {
                   _activePage = index;
@@ -307,8 +311,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
               activeIndex: _activePage,
               count: _images.length,
               effect: ScrollingDotsEffect(
-                dotHeight: 8,
-                dotWidth: 8,
+                dotHeight: 6,
+                dotWidth: 6,
                 activeDotColor: Theme.of(context).primaryColor,
                 dotColor: Colors.grey,
                 maxVisibleDots: 5,
