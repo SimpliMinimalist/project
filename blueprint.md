@@ -82,21 +82,18 @@ The application will be built with a focus on a clean, modern UI, adhering to th
     - Path: `lib/features/add_product/screens/add_product_screen.dart`
     - UI: A comprehensive form for adding a new product.
     - **AppBar:**
-        - "Cancel" `TextButton` on the left.
-        - "Product" as the centered title.
-        - "Save" `TextButton` on the right to submit the form.
+        - "Cancel" and "Save" `TextButton`s now use the app's primary color for a consistent look.
+        - The centered title "Product" is now bold and 1px smaller for a refined visual hierarchy.
     - **Form Fields:**
         - **Product Name:** A text field for the product's name.
         - **Description:** A multi-line text field for the product description.
         - **Price & Sale Price:** Two separate fields for regular and sale prices.
         - **Stock:** A field for the number of items in stock.
     - **Image Picker & Carousel:**
-        - A dedicated section to add up to 10 photos.
-        - **Initial State:** A large, full-width, square "Add Photo" button is displayed.
-        - **Carousel Display:** Once images are selected, they are displayed in a large, full-width carousel.
+        - **Initial State:** A large, full-width, square "Add Photo" button with a slight border radius (`8.0`) and no border is displayed.
+        - **Carousel Display:** Once images are selected, they are displayed in a large, full-width carousel with a matching border radius (`8.0`).
         - **UI Elements:** An image counter is in the top-left corner of each image, and a delete icon is in the top-right.
         - **Controls:** A smooth page indicator is centered below the carousel. An "Add More Photos" button appears below the indicator for easy image addition.
-        - **Validation:** The form requires at least one image to be selected.
     - Action: Accessible via the FAB on the home screen. After saving, it returns to the previous screen.
 
 ### Step 4: Finalization
@@ -104,4 +101,4 @@ The application will be built with a focus on a clean, modern UI, adhering to th
 - The authentication flow was refactored into a single bottom sheet to prevent UI flickering.
 - Custom SVG icons were added for a polished look on the home screen.
 - State management for the store's information is handled by `provider`.
-- The `Add Product` feature is fully implemented with a detailed form and a large, full-width image carousel.
+- The `Add Product` feature is fully implemented and its UI has been refined for a polished and modern feel.

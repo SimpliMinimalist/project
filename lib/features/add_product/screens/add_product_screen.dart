@@ -49,14 +49,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final titleTextStyle = Theme.of(context).textTheme.titleLarge;
     return Scaffold(
       appBar: AppBar(
         leading: TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(
+            'Cancel',
+            style: TextStyle(color: Theme.of(context).primaryColor),
+          ),
         ),
         leadingWidth: 100,
-        title: const Text('Product'),
+        title: Text(
+          'Product',
+          style: titleTextStyle?.copyWith(
+            fontWeight: FontWeight.bold,
+            fontSize: (titleTextStyle.fontSize ?? 22.0) - 1.0,
+          ),
+        ),
         centerTitle: true,
         actions: [
           TextButton(
@@ -68,7 +78,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 Navigator.of(context).pop();
               }
             },
-            child: const Text('Save'),
+            child: Text(
+              'Save',
+              style: TextStyle(color: Theme.of(context).primaryColor),
+            ),
           ),
         ],
       ),
@@ -182,7 +195,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 2.0),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8.0),
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
@@ -276,7 +289,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   Widget _buildAddPhotoImage(bool hasError) {
-    final borderColor = hasError ? Theme.of(context).colorScheme.error : Colors.grey.shade400;
     final backgroundColor = hasError
         ? Theme.of(context).colorScheme.error.withAlpha(25)
         : Colors.grey.shade200;
@@ -288,11 +300,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         child: Container(
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: borderColor,
-              width: 1,
-            ),
+            borderRadius: BorderRadius.circular(8.0),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
