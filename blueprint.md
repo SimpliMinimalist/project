@@ -63,3 +63,4 @@ Refine the visual appearance of the product cards.
 ### Steps
 
 1.  **Remove Card Shadow:** Set the `elevation` of the `ProductCard` to `0.0` to remove the box shadow effect.
+2.  **Set Card Background Color:** Set the `color` of the `ProductCard` to `Colors.white`.
