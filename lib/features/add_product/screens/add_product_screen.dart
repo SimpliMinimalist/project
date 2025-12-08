@@ -1,8 +1,10 @@
 
 import 'dart:io';
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -15,6 +17,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
   final List<XFile> _images = [];
+  int _activePage = 0;
 
   Future<void> _pickImages() async {
     if (_images.length >= 10) {
@@ -38,6 +41,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
   void _removeImage(int index) {
     setState(() {
       _images.removeAt(index);
+      if (_images.isNotEmpty && _activePage >= _images.length) {
+        _activePage = _images.length - 1;
+      }
     });
   }
 
@@ -49,15 +55,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
-        leadingWidth: 100, // Increased width to prevent wrapping
+        leadingWidth: 100,
         title: const Text('Product'),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: () {
               if (_formKey.currentState!.validate()) {
-                // Process data
-                 ScaffoldMessenger.of(context).showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Product added successfully!')),
                 );
                 Navigator.of(context).pop();
@@ -74,19 +79,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Add Photos/Videos section
-              Text(
-                'Add photos or videos (1-10 required)',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
               FormField<List<XFile>>(
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please select at least one image.';
-                  }
-                  if (value.length > 10) {
-                    return 'You can select a maximum of 10 images.';
                   }
                   return null;
                 },
@@ -95,78 +91,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      AspectRatio(
-                        aspectRatio: 1.0,
-                        child: Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: formFieldState.hasError
-                                ? Theme.of(context).colorScheme.error.withAlpha(13)
-                                : Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: _images.isEmpty
-                              ? InkWell(
-                                  onTap: _pickImages,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.add_a_photo_outlined,
-                                        size: 48,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Add Photos or Videos',
-                                        style: TextStyle(
-                                            color: Colors.grey.shade600),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : GridView.builder(
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    crossAxisSpacing: 4,
-                                    mainAxisSpacing: 4,
-                                  ),
-                                  itemCount: _images.length + 1,
-                                  itemBuilder: (context, index) {
-                                    if (index == _images.length) {
-                                      if (_images.length < 10) {
-                                        return IconButton(
-                                          icon: const Icon(Icons.add_circle),
-                                          onPressed: _pickImages,
-                                        );
-                                      } else {
-                                        return const SizedBox.shrink();
-                                      }
-                                    }
-                                    return Stack(
-                                      children: [
-                                        Image.file(
-                                          File(_images[index].path),
-                                          fit: BoxFit.cover,
-                                          width: double.infinity,
-                                          height: double.infinity,
-                                        ),
-                                        Positioned(
-                                          top: -10,
-                                          right: -10,
-                                          child: IconButton(
-                                            icon: const Icon(
-                                              Icons.remove_circle,
-                                              color: Colors.red,
-                                            ),
-                                            onPressed: () => _removeImage(index),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
+                      SizedBox(
+                        height: 250,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: _images.isEmpty
+                                  ? _buildAddPhotoImage(formFieldState.hasError)
+                                  : _buildImageCarousel(),
+                            ),
+                            if (_images.isNotEmpty)
+                              const SizedBox(width: 16),
+                            if (_images.isNotEmpty)
+                              SizedBox(
+                                width: 80, // Fixed width for the add photo button
+                                child: _buildAddPhotoImage(formFieldState.hasError),
+                              ),
+                          ],
                         ),
                       ),
                       if (formFieldState.hasError)
@@ -185,8 +127,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 },
               ),
               const SizedBox(height: 24),
-
-              // Product Name
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Product Name',
@@ -201,8 +141,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
               ),
               const SizedBox(height: 16),
-
-              // Description
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Description',
@@ -211,8 +149,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 maxLines: 3,
               ),
               const SizedBox(height: 16),
-
-              // Price
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Price',
@@ -229,8 +165,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
               ),
               const SizedBox(height: 16),
-
-              // Sale Price
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Sale Price',
@@ -240,14 +174,124 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 16),
-
-              // Stock
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Stock',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageCarousel() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        CarouselSlider.builder(
+          itemCount: _images.length,
+          itemBuilder: (context, index, realIndex) {
+            return SizedBox(
+              width: 200, // Fixed width for each carousel item
+              child: AspectRatio(
+                aspectRatio: 1.0,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Stack(
+                      children: [
+                        Image.file(
+                          File(_images[index].path),
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                        ),
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: GestureDetector(
+                            onTap: () => _removeImage(index),
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withAlpha(128),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.close, color: Colors.white, size: 16),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+          options: CarouselOptions(
+            height: 200, // Set a fixed height for the carousel
+            viewportFraction: 0.8,
+            enlargeCenterPage: true,
+            onPageChanged: (index, reason) {
+              setState(() {
+                _activePage = index;
+              });
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+        AnimatedSmoothIndicator(
+          activeIndex: _activePage,
+          count: _images.length,
+          effect: const WormEffect(
+            dotHeight: 8,
+            dotWidth: 8,
+            activeDotColor: Colors.deepPurple,
+            dotColor: Colors.grey,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAddPhotoImage(bool hasError) {
+    final borderColor = hasError ? Theme.of(context).colorScheme.error : Colors.grey.shade400;
+    final backgroundColor = hasError
+        ? Theme.of(context).colorScheme.error.withAlpha(25)
+        : Colors.grey.shade200;
+
+    return InkWell(
+      onTap: _pickImages,
+      child: AspectRatio(
+        aspectRatio: 1.0,
+        child: Container(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: borderColor, width: 1),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.add_a_photo_outlined,
+                size: 36,
+                color: Colors.grey.shade600,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Add Photo',
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
