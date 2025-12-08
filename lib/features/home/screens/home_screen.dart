@@ -34,26 +34,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _scrollListener() {
-    final position = _scrollController.position;
-    final userScrollDirection = position.userScrollDirection;
-
-    // Always show the FAB at the top or bottom of the list
-    if (position.atEdge) {
+    final direction = _scrollController.position.userScrollDirection;
+    if (direction == ScrollDirection.reverse) { // Scrolling down
+      if (_isFabVisible) {
+        setState(() => _isFabVisible = false);
+      }
+    } else if (direction == ScrollDirection.forward) { // Scrolling up
       if (!_isFabVisible) {
         setState(() => _isFabVisible = true);
-      }
-    } else {
-      // Hide the FAB when scrolling down in the middle of the list
-      if (userScrollDirection == ScrollDirection.reverse) {
-        if (_isFabVisible) {
-          setState(() => _isFabVisible = false);
-        }
-      } 
-      // Show the FAB when scrolling up in the middle of the list
-      else if (userScrollDirection == ScrollDirection.forward) {
-        if (!_isFabVisible) {
-          setState(() => _isFabVisible = true);
-        }
       }
     }
   }
@@ -82,7 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
         slivers: [
           SliverAppBar(
             floating: true,
-            // snap: false, // Removing snap to prevent the app bar from snapping open
             titleSpacing: 0,
             leading: Padding(
               padding: const EdgeInsets.all(8.0),
