@@ -58,10 +58,10 @@ This document outlines the design, features, and development plan for the E-comm
 
 ### Goal
 
-Enhance the user experience with a more dynamic app bar and consistent theming.
+Refine the home screen's scrolling behavior and animations for a smoother user experience.
 
 ### Steps
 
-1.  **Theme-Consistent App Bar:** The app bar's background color is now synchronized with the app's main background color for a seamless look.
-2.  **Auto-Hiding App Bar:** The app bar on the home screen now automatically hides when scrolling down and reappears when scrolling up, maximizing screen real estate.
-3.  **Floating Action Button Animation:** The "Add Product" button now smoothly animates in and out of view in sync with the app bar's visibility.
+1.  **Smoother App Bar Hiding:** The `snap` property was removed from the `SliverAppBar` to prevent it from reappearing abruptly at the top of the scroll view.
+2.  **Rotation-Free FAB Animation:** The default rotation animation for the Floating Action Button has been replaced with a simple fade-in/fade-out transition using `AnimatedSwitcher` for a cleaner look.
+3.  **Code Style Correction:** A lint warning was addressed by reordering the `child` property in the `FadeTransition` widget to adhere to best practices.

@@ -34,13 +34,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _scrollListener() {
-    if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+    final userScrollDirection = _scrollController.position.userScrollDirection;
+    // Hide the FAB when scrolling down
+    if (userScrollDirection == ScrollDirection.reverse) {
       if (_isFabVisible) {
         setState(() {
           _isFabVisible = false;
         });
       }
-    } else {
+    } 
+    // Show the FAB when scrolling up
+    else if (userScrollDirection == ScrollDirection.forward) {
       if (!_isFabVisible) {
         setState(() {
           _isFabVisible = true;
@@ -73,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
         slivers: [
           SliverAppBar(
             floating: true,
-            snap: true,
+            // snap: false, // Removing snap to prevent the app bar from snapping open
             titleSpacing: 0,
             leading: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -116,7 +120,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
         ],
       ),
-      floatingActionButton: _isFabVisible ? const AddProductFab() : null,
+      floatingActionButton: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        child: _isFabVisible
+            ? const AddProductFab()
+            : const SizedBox.shrink(),
+      ),
     );
   }
 }
