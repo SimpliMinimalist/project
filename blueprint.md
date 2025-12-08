@@ -50,7 +50,7 @@ This document outlines the design, features, and development plan for the E-comm
 *   **"Add Product" Button:**
     *   The button is enabled only when all required fields are filled and at least one image is selected.
     *   The button's background is always a shade of the primary color, with a semi-transparent version for the inactive state.
-    *   The button has no box shadow.
+    *   The button has no box shadow and is elevated by 2 pixels from the bottom.
 *   **Title:** The screen's title is "New Product."
 
 ## Current Task
@@ -67,4 +67,4 @@ Refine the "Add Product" screen's user experience by improving validation, butto
 4.  **Refine Button Color:** Use a semi-transparent version of the primary color for the button's background when it's in an inactive state.
 5.  **Disable Carousel Looping:** Set `enableInfiniteScroll` to `false` in the `CarouselOptions`.
 6.  **Adjust Swipe Indicator Size:** Reduce the `dotHeight` and `dotWidth` of the `ScrollingDotsEffect`.
-
+7.  **Adjust Button Position:** Wrap the `Padding` widget of the "Add Product" button in a `Transform.translate` widget to move it up by 2 pixels.

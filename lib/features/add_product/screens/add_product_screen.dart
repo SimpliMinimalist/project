@@ -212,20 +212,23 @@ class _AddProductScreenState extends State<AddProductScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _attemptSave,
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              backgroundColor: _isButtonEnabled
-                  ? Theme.of(context).primaryColor
-                  : Theme.of(context).primaryColor.withAlpha(128),
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+      bottomNavigationBar: Transform.translate(
+        offset: const Offset(0, -2),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _attemptSave,
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: _isButtonEnabled
+                    ? Theme.of(context).primaryColor
+                    : Theme.of(context).primaryColor.withAlpha(128),
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              ),
+              child: const Text('Add Product'),
             ),
-            child: const Text('Add Product'),
           ),
         ),
       ),
