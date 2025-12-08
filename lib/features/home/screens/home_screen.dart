@@ -34,7 +34,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _scrollListener() {
-    final direction = _scrollController.position.userScrollDirection;
+    final position = _scrollController.position;
+
+    // Always show FAB at the top or bottom & stop processing to prevent flickering
+    if (position.atEdge) {
+      if (!_isFabVisible) {
+        setState(() => _isFabVisible = true);
+      }
+      return; 
+    }
+
+    final direction = position.userScrollDirection;
     if (direction == ScrollDirection.reverse) { // Scrolling down
       if (_isFabVisible) {
         setState(() => _isFabVisible = false);
