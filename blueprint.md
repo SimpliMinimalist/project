@@ -58,18 +58,8 @@ This document outlines the design, features, and development plan for the E-comm
 
 ### Goal
 
-Refine the "Add Product" screen's user experience by improving validation, button styling, and carousel behavior.
+Refine the visual appearance of the product cards.
 
 ### Steps
 
-1.  **Remove Button Box Shadow:** Set the `elevation` of the "Add Product" button to `0`.
-2.  **Update Screen Title:** Change the `title` in the `AppBar` from "Product" to "New Product."
-3.  **Implement Real-Time Validation:** Set `autovalidateMode` to `AutovalidateMode.onUserInteraction` for all required `TextFormField`s and the `FormField` for images.
-4.  **Refine Button Color:** Use a semi-transparent version of the primary color for the button's background when it's in an inactive state.
-5.  **Disable Carousel Looping:** Set `enableInfiniteScroll` to `false` in the `CarouselOptions`.
-6.  **Adjust Swipe Indicator Size:** Reduce the `dotHeight` and `dotWidth` of the `ScrollingDotsEffect`.
-7.  **Adjust Button Position:** Wrap the `Padding` widget of the "Add Product" button in a `Transform.translate` widget to move it up by 2 pixels.
-8.  **Set Solid Button Color:** The "Add Product" button will now have a solid primary color, even when inactive.
-9.  **Restore On-Click Validation:** The "Add Product" button will now always be active and will trigger validation on click, displaying error messages if the required fields are empty.
-10. **Fix Typo:** Corrected the typo from `stylefrom` to `styleFrom` in the `ElevatedButton`'s style property.
-11. **Adjust Button Position:** Increased the upward offset of the "Add Product" button to 5 pixels.
+1.  **Remove Card Shadow:** Set the `elevation` of the `ProductCard` to `0.0` to remove the box shadow effect.
