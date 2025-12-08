@@ -51,7 +51,7 @@ This document outlines the design, features, and development plan for the E-comm
     *   The button is always active.
     *   When clicked, the button triggers validation and displays error messages if the required fields are empty.
     *   The button's background is always a solid primary color.
-    *   The button has no box shadow and is elevated by 2 pixels from the bottom.
+    *   The button has no box shadow and is elevated by 5 pixels from the bottom.
 *   **Title:** The screen's title is "New Product."
 
 ## Current Task
@@ -72,3 +72,4 @@ Refine the "Add Product" screen's user experience by improving validation, butto
 8.  **Set Solid Button Color:** The "Add Product" button will now have a solid primary color, even when inactive.
 9.  **Restore On-Click Validation:** The "Add Product" button will now always be active and will trigger validation on click, displaying error messages if the required fields are empty.
 10. **Fix Typo:** Corrected the typo from `stylefrom` to `styleFrom` in the `ElevatedButton`'s style property.
+11. **Adjust Button Position:** Increased the upward offset of the "Add Product" button to 5 pixels.
