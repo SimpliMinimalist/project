@@ -90,10 +90,8 @@ The application will be built with a focus on a clean, modern UI, adhering to th
         - **Price & Sale Price:** Two separate fields for regular and sale prices.
         - **Stock:** A field for the number of items in stock.
     - **Image Picker & Carousel:**
-        - **Initial State:** A large, full-width, square "Add Photo" button with a slight border radius (`8.0`) and no border is displayed.
-        - **Carousel Display:** Once images are selected, they are displayed in a large, full-width carousel with a matching border radius (`8.0`).
-        - **UI Elements:** An image counter is in the top-left corner of each image, and a delete icon is in the top-right.
-        - **Controls:** A smooth page indicator is centered below the carousel. An "Add More Photos" button appears below the indicator for easy image addition.
+        - **Carousel:** The image carousel now scrolls infinitely, providing a seamless looping experience.
+        - **Page Indicator:** A dynamic `ScrollingDotsEffect` indicator is now used, displaying a maximum of 5 dots at a time and scrolling with the carousel for a more compact and modern feel. The active dot is highlighted with the app's primary color.
     - Action: Accessible via the FAB on the home screen. After saving, it returns to the previous screen.
 
 ### Step 4: Finalization

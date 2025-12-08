@@ -247,7 +247,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               height: double.infinity,
               viewportFraction: 1.0,
               enlargeCenterPage: false,
-              enableInfiniteScroll: false,
+              enableInfiniteScroll: true,
               onPageChanged: (index, reason) {
                 setState(() {
                   _activePage = index;
@@ -262,11 +262,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
             child: AnimatedSmoothIndicator(
               activeIndex: _activePage,
               count: _images.length,
-              effect: const WormEffect(
+              effect: ScrollingDotsEffect(
                 dotHeight: 8,
                 dotWidth: 8,
-                activeDotColor: Colors.deepPurple,
+                activeDotColor: Theme.of(context).primaryColor,
                 dotColor: Colors.grey,
+                maxVisibleDots: 5,
               ),
             ),
           ),
