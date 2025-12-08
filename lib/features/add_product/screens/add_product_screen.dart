@@ -45,11 +45,27 @@ class _AddProductScreenState extends State<AddProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: TextButton(
           onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
         ),
-        title: const Text('Add Product'),
+        leadingWidth: 100, // Increased width to prevent wrapping
+        title: const Text('Product'),
+        centerTitle: true,
+        actions: [
+          TextButton(
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                // Process data
+                 ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Product added successfully!')),
+                );
+                Navigator.of(context).pop();
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
       ),
       body: Form(
         key: _formKey,
@@ -232,20 +248,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 32),
-
-              // Submit Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // Process data
-                    }
-                  },
-                  child: const Text('Add Product'),
-                ),
               ),
             ],
           ),

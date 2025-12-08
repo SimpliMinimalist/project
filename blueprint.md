@@ -86,13 +86,18 @@ The application will be built with a focus on a clean, modern UI, adhering to th
 5. **Add Product Screen (`/add-product`)**
    - Path: `lib/features/add_product/screens/add_product_screen.dart`
    - UI: A comprehensive form for adding a new product.
+   - **AppBar:**
+     - "Cancel" `TextButton` on the left.
+     - "Product" as the centered title.
+     - "Save" `TextButton` on the right to submit the form.
+     - `leadingWidth` is increased to 100 to prevent the "Cancel" button from wrapping.
    - **Form Fields:**
-     - **Media:** A section to add photos or videos.
+     - **Media:** A section to add photos or videos (1-10 required).
      - **Product Name:** A text field for the product's name.
      - **Description:** A multi-line text field for the product description.
      - **Price & Sale Price:** Two separate fields for regular and sale prices.
      - **Stock:** A field for the number of items in stock.
-   - Action: Accessible via the FAB on the home screen.
+   - Action: Accessible via the FAB on the home screen. After saving, it returns to the previous screen.
 
 ### Step 4: Widget Implementation
 
