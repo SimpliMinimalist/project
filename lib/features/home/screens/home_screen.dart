@@ -1,76 +1,122 @@
 
-import 'package:myapp/features/add_product/widgets/product_card.dart';
-import 'package:myapp/providers/product_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
+import '../../../providers/product_provider.dart';
 import '../../../providers/store_provider.dart';
 import '../../add_product/widgets/add_product_fab.dart';
+import '../../add_product/widgets/product_card.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final ScrollController _scrollController = ScrollController();
+  bool _isFabVisible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+      if (_isFabVisible) {
+        setState(() {
+          _isFabVisible = false;
+        });
+      }
+    } else {
+      if (!_isFabVisible) {
+        setState(() {
+          _isFabVisible = true;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final storeProvider = Provider.of<StoreProvider>(context);
     final productProvider = Provider.of<ProductProvider>(context);
 
-    // Determine the leading widget consistently
     Widget leadingContent;
     if (storeProvider.logo != null) {
-      // If a logo exists, use it as the background for the CircleAvatar
       leadingContent = CircleAvatar(
-        radius: 18, // Reduced radius
+        radius: 18,
         backgroundImage: FileImage(storeProvider.logo!),
       );
     } else {
-      // If no logo, show a default icon inside the CircleAvatar
       leadingContent = const CircleAvatar(
-        radius: 18, // Reduced radius
+        radius: 18,
         child: Icon(Icons.store),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0, // Closer title
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0), // Apply consistent padding to the wrapper
-          child: leadingContent, // Use the consistently defined widget
-        ),
-        title: Text(
-          storeProvider.storeName.isNotEmpty ? storeProvider.storeName : 'My Store',
-          style: const TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverAppBar(
+            floating: true,
+            snap: true,
+            titleSpacing: 0,
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: leadingContent,
+            ),
+            title: Text(
+              storeProvider.storeName.isNotEmpty ? storeProvider.storeName : 'My Store',
+              style: const TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: SvgPicture.asset('assets/icons/search.svg',
+                    width: 24, height: 24),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: SvgPicture.asset('assets/icons/notification.svg',
+                    width: 24, height: 24),
+                onPressed: () {},
+              ),
+            ],
           ),
-        ),
-        actions: [
-          IconButton(
-            icon: SvgPicture.asset('assets/icons/search.svg',
-                width: 24, height: 24),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: SvgPicture.asset('assets/icons/notification.svg',
-                width: 24, height: 24),
-            onPressed: () {},
-          ),
+          productProvider.products.isEmpty
+              ? const SliverFillRemaining(
+                  child: Center(
+                    child: Text('No products yet. Add one!'),
+                  ),
+                )
+              : SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final product = productProvider.products[index];
+                      return ProductCard(product: product);
+                    },
+                    childCount: productProvider.products.length,
+                  ),
+                ),
         ],
       ),
-      body: productProvider.products.isEmpty
-          ? const Center(
-              child: Text('No products yet. Add one!'),
-            )
-          : ListView.builder(
-              itemCount: productProvider.products.length,
-              itemBuilder: (context, index) {
-                final product = productProvider.products[index];
-                return ProductCard(product: product);
-              },
-            ),
-      floatingActionButton: const AddProductFab(),
+      floatingActionButton: _isFabVisible ? const AddProductFab() : null,
     );
   }
 }

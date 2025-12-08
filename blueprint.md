@@ -58,9 +58,10 @@ This document outlines the design, features, and development plan for the E-comm
 
 ### Goal
 
-Refine the visual appearance of the product cards.
+Enhance the user experience with a more dynamic app bar and consistent theming.
 
 ### Steps
 
-1.  **Remove Card Shadow:** Set the `elevation` of the `ProductCard` to `0.0` to remove the box shadow effect.
-2.  **Set Card Background Color:** Set the `color` of the `ProductCard` to `Colors.white`.
+1.  **Theme-Consistent App Bar:** The app bar's background color is now synchronized with the app's main background color for a seamless look.
+2.  **Auto-Hiding App Bar:** The app bar on the home screen now automatically hides when scrolling down and reappears when scrolling up, maximizing screen real estate.
+3.  **Floating Action Button Animation:** The "Add Product" button now smoothly animates in and out of view in sync with the app bar's visibility.

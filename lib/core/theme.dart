@@ -10,6 +10,16 @@ final ThemeData appTheme = ThemeData(
   primaryColor: primaryColor,
   colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
   useMaterial3: true,
+  appBarTheme: const AppBarTheme(
+    backgroundColor: backgroundColor,
+    elevation: 0,
+    iconTheme: IconThemeData(color: Colors.black),
+    titleTextStyle: TextStyle(
+      color: Colors.black,
+      fontSize: 20,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
   textSelectionTheme: const TextSelectionThemeData(
     cursorColor: primaryColor,
   ),
