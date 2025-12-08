@@ -90,9 +90,11 @@ The application will be built with a focus on a clean, modern UI, adhering to th
         - **Price & Sale Price:** Two separate fields for regular and sale prices.
         - **Stock:** A field for the number of items in stock.
     - **Image Picker & Carousel:**
+        - **Image Counter:** The container for the image number has been updated to a "pill" shape for a modern look.
         - **Carousel:** The image carousel now scrolls infinitely, providing a seamless looping experience.
         - **Page Indicator:** A dynamic `ScrollingDotsEffect` indicator is now used, displaying a maximum of 5 dots at a time and scrolling with the carousel for a more compact and modern feel. The active dot is highlighted with the app's primary color.
-    - Action: Accessible via the FAB on the home screen. After saving, it returns to the previous screen.
+        - **"Add More Photos" Button:** This button has been restyled to be a flat, pill-shaped button with a background color derived from the primary theme (`primaryContainer`) and no shadow, creating a subtle and clean appearance.
+
 
 ### Step 4: Finalization
 - The debug banner has been removed.

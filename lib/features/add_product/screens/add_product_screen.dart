@@ -214,7 +214,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                             ),
                           decoration: BoxDecoration(
                             color: Colors.black.withAlpha(128),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(100),
                           ),
                           child: Text(
                             '${index + 1}/${_images.length}',
@@ -275,13 +275,18 @@ class _AddProductScreenState extends State<AddProductScreen> {
         if (_images.length < 10)
           SizedBox(
             width: double.infinity,
-            child: OutlinedButton.icon(
+            child: ElevatedButton.icon(
               onPressed: _pickImages,
               icon: const Icon(Icons.add_a_photo_outlined),
               label: const Text('Add More Photos'),
-              style: OutlinedButton.styleFrom(
+              style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                side: BorderSide(color: Colors.grey.shade400),
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                elevation: 0,
               ),
             ),
           ),
