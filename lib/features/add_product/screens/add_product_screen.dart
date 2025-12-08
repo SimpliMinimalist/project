@@ -91,27 +91,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        height: 250,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 3,
-                              child: _images.isEmpty
-                                  ? _buildAddPhotoImage(formFieldState.hasError)
-                                  : _buildImageCarousel(),
-                            ),
-                            if (_images.isNotEmpty)
-                              const SizedBox(width: 16),
-                            if (_images.isNotEmpty)
-                              SizedBox(
-                                width: 80, // Fixed width for the add photo button
-                                child: _buildAddPhotoImage(formFieldState.hasError),
-                              ),
-                          ],
-                        ),
-                      ),
-                      if (formFieldState.hasError)
+                      _images.isEmpty
+                          ? _buildAddPhotoImage(formFieldState.hasError)
+                          : _buildImageCarousel(),
+                      if (formFieldState.hasError && _images.isEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0, left: 12.0),
                           child: Text(
@@ -190,75 +173,104 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   Widget _buildImageCarousel() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        CarouselSlider.builder(
-          itemCount: _images.length,
-          itemBuilder: (context, index, realIndex) {
-            return SizedBox(
-              width: 200, // Fixed width for each carousel item
-              child: AspectRatio(
-                aspectRatio: 1.0,
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Stack(
-                      children: [
-                        Image.file(
-                          File(_images[index].path),
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                        ),
-                        Positioned(
-                          top: 4,
-                          right: 4,
-                          child: GestureDetector(
-                            onTap: () => _removeImage(index),
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withAlpha(128),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.close, color: Colors.white, size: 16),
+        AspectRatio(
+          aspectRatio: 1.0,
+          child: CarouselSlider.builder(
+            itemCount: _images.length,
+            itemBuilder: (context, index, realIndex) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 2.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.file(
+                        File(_images[index].path),
+                        fit: BoxFit.cover,
+                      ),
+                      // Image counter
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
                             ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withAlpha(128),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '${index + 1}/${_images.length}',
+                            style: const TextStyle(color: Colors.white, fontSize: 12),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      // Delete button
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: GestureDetector(
+                          onTap: () => _removeImage(index),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withAlpha(128),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.delete_outline, color: Colors.white, size: 20),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            );
-          },
-          options: CarouselOptions(
-            height: 200, // Set a fixed height for the carousel
-            viewportFraction: 0.8,
-            enlargeCenterPage: true,
-            onPageChanged: (index, reason) {
-              setState(() {
-                _activePage = index;
-              });
+              );
             },
+            options: CarouselOptions(
+              height: double.infinity,
+              viewportFraction: 1.0,
+              enlargeCenterPage: false,
+              enableInfiniteScroll: false,
+              onPageChanged: (index, reason) {
+                setState(() {
+                  _activePage = index;
+                });
+              },
+            ),
           ),
         ),
-        const SizedBox(height: 16),
-        AnimatedSmoothIndicator(
-          activeIndex: _activePage,
-          count: _images.length,
-          effect: const WormEffect(
-            dotHeight: 8,
-            dotWidth: 8,
-            activeDotColor: Colors.deepPurple,
-            dotColor: Colors.grey,
+        const SizedBox(height: 12),
+        if (_images.length > 1)
+          Center(
+            child: AnimatedSmoothIndicator(
+              activeIndex: _activePage,
+              count: _images.length,
+              effect: const WormEffect(
+                dotHeight: 8,
+                dotWidth: 8,
+                activeDotColor: Colors.deepPurple,
+                dotColor: Colors.grey,
+              ),
+            ),
           ),
-        ),
+        const SizedBox(height: 12),
+        if (_images.length < 10)
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: _pickImages,
+              icon: const Icon(Icons.add_a_photo_outlined),
+              label: const Text('Add More Photos'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                side: BorderSide(color: Colors.grey.shade400),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -269,29 +281,31 @@ class _AddProductScreenState extends State<AddProductScreen> {
         ? Theme.of(context).colorScheme.error.withAlpha(25)
         : Colors.grey.shade200;
 
-    return InkWell(
-      onTap: _pickImages,
-      child: AspectRatio(
-        aspectRatio: 1.0,
+    return AspectRatio(
+      aspectRatio: 1.0,
+      child: InkWell(
+        onTap: _pickImages,
         child: Container(
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: borderColor, width: 1),
+            border: Border.all(
+              color: borderColor,
+              width: 1,
+            ),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 Icons.add_a_photo_outlined,
-                size: 36,
+                size: 64,
                 color: Colors.grey.shade600,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               Text(
-                'Add Photo',
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                textAlign: TextAlign.center,
+                'Add up to 10 Photos',
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
               ),
             ],
           ),

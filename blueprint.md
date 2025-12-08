@@ -92,12 +92,10 @@ The application will be built with a focus on a clean, modern UI, adhering to th
         - **Stock:** A field for the number of items in stock.
     - **Image Picker & Carousel:**
         - A dedicated section to add up to 10 photos.
-        - **Initial State:** A large, square "Add Photo" button is displayed.
-        - **Image Selection:** Tapping the button opens the device's image gallery (`image_picker`).
-        - **Carousel Display:** Once images are selected, they are displayed in a horizontal carousel (`carousel_slider`).
-        - **Layout:** The carousel takes up the main space, with a smaller, square "Add Photo" button to its right for adding more images.
-        - **Design:** Each image in the carousel is a perfect square with a distinct border and rounded corners. The centered image is enlarged for focus.
-        - **Controls:** A "close" icon on each image allows for its removal. A smooth page indicator (`smooth_page_indicator`) is centered below the carousel to show the current position.
+        - **Initial State:** A large, full-width, square "Add Photo" button is displayed.
+        - **Carousel Display:** Once images are selected, they are displayed in a large, full-width carousel.
+        - **UI Elements:** An image counter is in the top-left corner of each image, and a delete icon is in the top-right.
+        - **Controls:** A smooth page indicator is centered below the carousel. An "Add More Photos" button appears below the indicator for easy image addition.
         - **Validation:** The form requires at least one image to be selected.
     - Action: Accessible via the FAB on the home screen. After saving, it returns to the previous screen.
 
@@ -106,4 +104,4 @@ The application will be built with a focus on a clean, modern UI, adhering to th
 - The authentication flow was refactored into a single bottom sheet to prevent UI flickering.
 - Custom SVG icons were added for a polished look on the home screen.
 - State management for the store's information is handled by `provider`.
-- The `Add Product` feature is fully implemented with a detailed form and a sophisticated image carousel.
+- The `Add Product` feature is fully implemented with a detailed form and a large, full-width image carousel.
