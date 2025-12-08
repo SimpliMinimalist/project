@@ -58,12 +58,16 @@ This document outlines the design, features, and development plan for the E-comm
 
 ### Goal
 
-Refine the home screen's scrolling behavior and animations for a smoother user experience.
+Implement a smooth and reliable scroll-aware Floating Action Button (FAB) on the home screen.
 
 ### Steps
 
-1.  **Smoother App Bar Hiding:** The `snap` property was removed from the `SliverAppBar` to prevent it from reappearing abruptly at the top of the scroll view.
-2.  **Rotation-Free FAB Animation:** The default rotation animation for the Floating Action Button has been replaced with a simple fade-in/fade-out transition using `AnimatedSwitcher` for a cleaner look.
-3.  **Code Style Correction:** A lint warning was addressed by reordering the `child` property in the `FadeTransition` widget to adhere to best practices.
-4.  **Robust FAB Visibility Logic:** To fix a flickering issue at the top and bottom of the list, the scroll listener logic was enhanced. It now checks if the scroll position is `atEdge` and, if so, ensures the FAB is visible. This prevents the `userScrollDirection` from causing inconsistent state changes at the scroll boundaries. The standard hide/show logic is only applied when scrolling through the middle of the list.
+1.  **Initial Implementation & Refinement:** The task began with several iterations to hide the FAB on scroll-down and show it on scroll-up. This included using a `ScrollController` listener and various logic checks.
+
+2.  **Error Correction & Final Implementation:** An error was identified where `userScrollDelta` was used incorrectly. The implementation was corrected by replacing the `ScrollController` listener with a `NotificationListener<ScrollNotification>`.
+
+3.  **Final Logic:**
+    *   **Threshold:** A `scrollDelta` threshold is used within `ScrollUpdateNotification` to prevent the FAB from flickering on minor scroll movements.
+    *   **Edge Handling:** A `ScrollEndNotification` check ensures the FAB is always visible when the user stops scrolling at the top or bottom edge of the list.
+    *   **Safe UI Updates:** `SchedulerBinding.instance.addPostFrameCallback` is used to safely update the FAB's visibility state, preventing `setState` errors during the layout phase.
 

@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
@@ -21,39 +22,39 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isFabVisible = true;
 
   @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_scrollListener);
-  }
-
-  @override
   void dispose() {
-    _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _scrollListener() {
-    final position = _scrollController.position;
+  bool _handleScrollNotification(ScrollNotification notification) {
+    // React to user scrolling
+    if (notification is ScrollUpdateNotification) {
+      final direction = _scrollController.position.userScrollDirection;
+      final scrollDelta = notification.scrollDelta ?? 0;
+      const threshold = 5.0; // Adjust for desired sensitivity
 
-    // Always show FAB at the top or bottom & stop processing to prevent flickering
-    if (position.atEdge) {
-      if (!_isFabVisible) {
-        setState(() => _isFabVisible = true);
-      }
-      return; 
-    }
-
-    final direction = position.userScrollDirection;
-    if (direction == ScrollDirection.reverse) { // Scrolling down
-      if (_isFabVisible) {
-        setState(() => _isFabVisible = false);
-      }
-    } else if (direction == ScrollDirection.forward) { // Scrolling up
-      if (!_isFabVisible) {
-        setState(() => _isFabVisible = true);
+      if (direction == ScrollDirection.reverse && scrollDelta.abs() > threshold) {
+        if (_isFabVisible) _updateFab(false); // Scrolling down, hide FAB
+      } else if (direction == ScrollDirection.forward && scrollDelta.abs() > threshold) {
+        if (!_isFabVisible) _updateFab(true); // Scrolling up, show FAB
       }
     }
+    // Ensure FAB is visible when scrolling stops at the very top or bottom
+    else if (notification is ScrollEndNotification) {
+      if (notification.metrics.atEdge) {
+        _updateFab(true);
+      }
+    }
+    return false;
+  }
+
+  void _updateFab(bool visible) {
+    if (_isFabVisible == visible) return;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() => _isFabVisible = visible);
+    });
   }
 
   @override
@@ -75,61 +76,65 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Scaffold(
-      body: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          SliverAppBar(
-            floating: true,
-            titleSpacing: 0,
-            leading: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: leadingContent,
-            ),
-            title: Text(
-              storeProvider.storeName.isNotEmpty ? storeProvider.storeName : 'My Store',
-              style: const TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
+      body: NotificationListener<ScrollNotification>(
+        onNotification: _handleScrollNotification,
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            SliverAppBar(
+              floating: true,
+              titleSpacing: 0,
+              leading: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: leadingContent,
               ),
-            ),
-            actions: [
-              IconButton(
-                icon: SvgPicture.asset('assets/icons/search.svg',
-                    width: 24, height: 24),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: SvgPicture.asset('assets/icons/notification.svg',
-                    width: 24, height: 24),
-                onPressed: () {},
-              ),
-            ],
-          ),
-          productProvider.products.isEmpty
-              ? const SliverFillRemaining(
-                  child: Center(
-                    child: Text('No products yet. Add one!'),
-                  ),
-                )
-              : SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final product = productProvider.products[index];
-                      return ProductCard(product: product);
-                    },
-                    childCount: productProvider.products.length,
-                  ),
+              title: Text(
+                storeProvider.storeName.isNotEmpty
+                    ? storeProvider.storeName
+                    : 'My Store',
+                style: const TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
                 ),
-        ],
+              ),
+              actions: [
+                IconButton(
+                  icon: SvgPicture.asset('assets/icons/search.svg',
+                      width: 24, height: 24),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: SvgPicture.asset('assets/icons/notification.svg',
+                      width: 24, height: 24),
+                  onPressed: () {},
+                ),
+              ],
+            ),
+            productProvider.products.isEmpty
+                ? const SliverFillRemaining(
+                    child: Center(
+                      child: Text('No products yet. Add one!'),
+                    ),
+                  )
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final product = productProvider.products[index];
+                        return ProductCard(product: product);
+                      },
+                      childCount: productProvider.products.length,
+                    ),
+                  ),
+          ],
+        ),
       ),
       floatingActionButton: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         transitionBuilder: (Widget child, Animation<double> animation) {
           return FadeTransition(opacity: animation, child: child);
         },
-        child: _isFabVisible
-            ? const AddProductFab()
-            : const SizedBox.shrink(),
+        child:
+            _isFabVisible ? const AddProductFab() : const SizedBox.shrink(),
       ),
     );
   }
