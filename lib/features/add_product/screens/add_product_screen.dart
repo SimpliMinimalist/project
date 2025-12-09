@@ -115,6 +115,35 @@ class _AddProductScreenState extends State<AddProductScreen> {
     });
   }
 
+  void _showDeleteConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Product'),
+          content: const Text('Are you sure you want to delete this product?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Provider.of<ProductProvider>(context, listen: false).deleteProduct(widget.product!.id);
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Product deleted successfully!')),
+                );
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final titleTextStyle = Theme.of(context).textTheme.titleLarge;
@@ -238,17 +267,34 @@ class _AddProductScreenState extends State<AddProductScreen> {
         offset: const Offset(0, -5),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _attemptSave,
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          child: Row(
+            children: [
+              if (isEditing)
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _showDeleteConfirmationDialog,
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      backgroundColor: Colors.grey.shade300,
+                      foregroundColor: Colors.black87,
+                    ),
+                    child: const Text('Delete'),
+                  ),
+                ),
+              if (isEditing)
+                const SizedBox(width: 16),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _attemptSave,
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  child: Text(isEditing ? 'Update Product' : 'Add Product'),
+                ),
               ),
-              child: Text(isEditing ? 'Update Product' : 'Add Product'),
-            ),
+            ],
           ),
         ),
       ),
