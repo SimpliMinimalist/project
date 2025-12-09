@@ -32,9 +32,10 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
+       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        context.go('/home');
+        context.pop();
       },
       child: Scaffold(
         backgroundColor: Colors.grey[200],
@@ -54,7 +55,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                   )),
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back),
-                    onPressed: () => context.go('/home'),
+                    onPressed: () => context.pop(),
                   ),
                   trailing: _isTyping
                       ? [

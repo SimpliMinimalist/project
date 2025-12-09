@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 IconButton(
                   icon: SvgPicture.asset('assets/icons/search.svg',
                       width: 24, height: 24),
-                  onPressed: () => context.go('/search'),
+                  onPressed: () => context.push('/search'),
                 ),
                 IconButton(
                   icon: SvgPicture.asset('assets/icons/notification.svg',
