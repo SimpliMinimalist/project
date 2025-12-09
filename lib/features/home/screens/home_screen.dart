@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/product_provider.dart';
@@ -101,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 IconButton(
                   icon: SvgPicture.asset('assets/icons/search.svg',
                       width: 24, height: 24),
-                  onPressed: () {},
+                  onPressed: () => context.go('/search'),
                 ),
                 IconButton(
                   icon: SvgPicture.asset('assets/icons/notification.svg',
