@@ -156,14 +156,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
                 controller: _priceController,
                 decoration: const InputDecoration(
                   labelText: 'Price',
@@ -196,6 +188,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
               ),
             ],
           ),
@@ -319,7 +319,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               label: const Text('Add More Photos'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                backgroundColor: Colors.grey.shade200,
+                backgroundColor: Colors.grey.shade300,
                 foregroundColor: Colors.black87,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(100),
@@ -338,7 +338,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         : Colors.grey.shade200;
 
     return AspectRatio(
-      aspectRatio: 1.0,
+      aspectRatio: 1 / 1,
       child: InkWell(
         onTap: _pickImages,
         child: Container(
