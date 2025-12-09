@@ -70,7 +70,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       setState(() {
         _images.addAll(pickedFiles);
       });
-      _formKey.currentState?.validate();
     }
   }
 
@@ -81,7 +80,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
         _activePage = _images.length - 1;
       }
     });
-    _formKey.currentState?.validate();
   }
 
   @override

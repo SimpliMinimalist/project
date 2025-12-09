@@ -30,3 +30,5 @@ This project is a Flutter application that allows users to manage and sell produ
     3.  Adjust the styling of the image selection area to make it more visually appealing and intuitive.
     4.  Make the "Add Photos" selection box square.
     5.  Darken the background of the "Add More Photos" button for better visibility.
+    6.  Fix an issue where adding an image was prematurely triggering form validation.
+    7.  Correct typos that were causing build errors.
