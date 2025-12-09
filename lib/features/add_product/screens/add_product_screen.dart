@@ -8,9 +8,15 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:uuid/uuid.dart';
 
 class AddProductScreen extends StatefulWidget {
-  const AddProductScreen({super.key});
+  final Product? product;
+
+  const AddProductScreen({
+    super.key,
+    this.product,
+  });
 
   @override
   State<AddProductScreen> createState() => _AddProductScreenState();
@@ -27,6 +33,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _stockController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.product != null) {
+      _productNameController.text = widget.product!.name;
+      _priceController.text = widget.product!.price.toString();
+      _stockController.text = widget.product!.stock?.toString() ?? '';
+      _images.addAll(widget.product!.images.map((path) => XFile(path)));
+    }
+  }
+
+  @override
   void dispose() {
     _productNameController.dispose();
     _priceController.dispose();
@@ -38,18 +55,34 @@ class _AddProductScreenState extends State<AddProductScreen> {
     if (_formKey.currentState!.validate()) {
       final stockValue = _stockController.text.isNotEmpty ? int.parse(_stockController.text) : null;
 
-      final newProduct = Product(
-        name: _productNameController.text,
-        price: double.parse(_priceController.text),
-        stock: stockValue,
-        images: _images.map((image) => image.path).toList(),
-      );
+      if (widget.product == null) {
+        // Add new product
+        final newProduct = Product(
+          id: const Uuid().v4(),
+          name: _productNameController.text,
+          price: double.parse(_priceController.text),
+          stock: stockValue,
+          images: _images.map((image) => image.path).toList(),
+        );
+        Provider.of<ProductProvider>(context, listen: false).addProduct(newProduct);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Product added successfully!')),
+        );
+      } else {
+        // Update existing product
+        final updatedProduct = Product(
+          id: widget.product!.id,
+          name: _productNameController.text,
+          price: double.parse(_priceController.text),
+          stock: stockValue,
+          images: _images.map((image) => image.path).toList(),
+        );
+        Provider.of<ProductProvider>(context, listen: false).updateProduct(updatedProduct);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Product updated successfully!')),
+        );
+      }
 
-      Provider.of<ProductProvider>(context, listen: false).addProduct(newProduct);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Product added successfully!')),
-      );
       Navigator.of(context).pop();
     }
   }
@@ -85,6 +118,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     final titleTextStyle = Theme.of(context).textTheme.titleLarge;
+    final isEditing = widget.product != null;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -92,7 +127,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'New Product',
+          isEditing ? 'Edit Product' : 'New Product',
           style: titleTextStyle?.copyWith(
             fontWeight: FontWeight.bold,
             fontSize: (titleTextStyle.fontSize ?? 22.0) - 1.0,
@@ -212,7 +247,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 backgroundColor: Theme.of(context).primaryColor,
                 foregroundColor: Theme.of(context).colorScheme.onPrimary,
               ),
-              child: const Text('Add Product'),
+              child: Text(isEditing ? 'Update Product' : 'Add Product'),
             ),
           ),
         ),

@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:myapp/features/add_product/screens/add_product_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/product_provider.dart';
@@ -121,7 +122,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
                         final product = productProvider.products[index];
-                        return ProductCard(product: product);
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddProductScreen(product: product),
+                              ),
+                            );
+                          },
+                          child: ProductCard(product: product),
+                        );
                       },
                       childCount: productProvider.products.length,
                     ),
