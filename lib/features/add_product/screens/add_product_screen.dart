@@ -264,7 +264,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         ),
       ),
       bottomNavigationBar: Transform.translate(
-        offset: const Offset(0, -5),
+        offset: const Offset(0, -7),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
