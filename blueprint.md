@@ -23,8 +23,11 @@ This project is a Flutter application that allows users to manage and sell produ
     *   A consistent color scheme and typography.
     *   A modern and clean design with a focus on user experience.
 
-### Current Task: Adjust "Add Product" Button Position
+### Current Task: Implement Discard Changes Confirmation
 
-*   **Objective:** Move the "Add Product" button up by another 2 pixels.
+*   **Objective:** Prevent accidental data loss when editing a product by showing a confirmation dialog if there are unsaved changes.
 *   **Steps:**
-    1.  Modified the `Transform.translate` widget in `add_product_screen.dart` to have an offset of `const Offset(0, -7)`.
+    1.  **Detect Changes:** Track the initial state of the product when the "Edit Product" screen is opened.
+    2.  **Intercept Back Navigation:** Use `WillPopScope` to intercept the back button press and back gestures.
+    3.  **Show Confirmation Dialog:** If changes are detected, display a dialog with the message "Discard changes?" and options to "Continue editing" or "Discard".
+    4.  **Handle User's Choice:** The app will either stay on the screen or navigate back based on the user's selection.

@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:collection/collection.dart';
 import 'package:myapp/models/product_model.dart';
 import 'package:myapp/providers/product_provider.dart';
 import 'package:flutter/material.dart';
@@ -31,11 +32,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _productNameController = TextEditingController();
   final _priceController = TextEditingController();
   final _stockController = TextEditingController();
+  final _descriptionController = TextEditingController();
+
+  // For tracking changes
+  Product? _initialProduct;
 
   @override
   void initState() {
     super.initState();
     if (widget.product != null) {
+      _initialProduct = widget.product!.copyWith();
       _productNameController.text = widget.product!.name;
       _priceController.text = widget.product!.price.toString();
       _stockController.text = widget.product!.stock?.toString() ?? '';
@@ -48,12 +54,59 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _productNameController.dispose();
     _priceController.dispose();
     _stockController.dispose();
+    _descriptionController.dispose();
     super.dispose();
+  }
+
+  bool _isFormModified() {
+    if (widget.product == null) {
+      return _productNameController.text.isNotEmpty ||
+          _priceController.text.isNotEmpty ||
+          _stockController.text.isNotEmpty ||
+          _descriptionController.text.isNotEmpty ||
+          _images.isNotEmpty;
+    } else {
+      final currentProduct = Product(
+        id: _initialProduct!.id,
+        name: _productNameController.text,
+        price: double.tryParse(_priceController.text) ?? 0.0,
+        stock: int.tryParse(_stockController.text),
+        images: _images.map((image) => image.path).toList(),
+      );
+      return !_initialProduct!.equals(currentProduct);
+    }
+  }
+
+  Future<bool> _showDiscardDialog() async {
+    if (!_isFormModified()) {
+      return true;
+    }
+
+    final navigator = Navigator.of(context);
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Discard changes?'),
+        content: const Text('You have unsaved changes. Are you sure you want to discard them?'),
+        actions: [
+          TextButton(
+            onPressed: () => navigator.pop(false),
+            child: const Text('Continue editing'),
+          ),
+          TextButton(
+            onPressed: () => navigator.pop(true),
+            child: const Text('Discard'),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
   }
 
   void _attemptSave() {
     if (_formKey.currentState!.validate()) {
       final stockValue = _stockController.text.isNotEmpty ? int.parse(_stockController.text) : null;
+      final navigator = Navigator.of(context);
 
       if (widget.product == null) {
         // Add new product
@@ -65,9 +118,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
           images: _images.map((image) => image.path).toList(),
         );
         Provider.of<ProductProvider>(context, listen: false).addProduct(newProduct);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Product added successfully!')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Product added successfully!')),
+          );
+        }
       } else {
         // Update existing product
         final updatedProduct = Product(
@@ -78,18 +133,20 @@ class _AddProductScreenState extends State<AddProductScreen> {
           images: _images.map((image) => image.path).toList(),
         );
         Provider.of<ProductProvider>(context, listen: false).updateProduct(updatedProduct);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Product updated successfully!')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Product updated successfully!')),
+          );
+        }
       }
-
-      Navigator.of(context).pop();
+      navigator.pop();
     }
   }
 
   Future<void> _pickImages() async {
+    final messenger = ScaffoldMessenger.of(context);
     if (_images.length >= 10) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('You can only select up to 10 images.')),
       );
       return;
@@ -116,6 +173,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   void _showDeleteConfirmationDialog() {
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final productProvider = Provider.of<ProductProvider>(context, listen: false);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -124,15 +185,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
           content: const Text('Are you sure you want to delete this product?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => navigator.pop(),
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                Provider.of<ProductProvider>(context, listen: false).deleteProduct(widget.product!.id);
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
+                productProvider.deleteProduct(widget.product!.id);
+                navigator.pop();
+                navigator.pop();
+                messenger.showSnackBar(
                   const SnackBar(content: Text('Product deleted successfully!')),
                 );
               },
@@ -149,152 +210,172 @@ class _AddProductScreenState extends State<AddProductScreen> {
     final titleTextStyle = Theme.of(context).textTheme.titleLarge;
     final isEditing = widget.product != null;
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          isEditing ? 'Edit Product' : 'New Product',
-          style: titleTextStyle?.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: (titleTextStyle.fontSize ?? 22.0) - 1.0,
+    return PopScope(
+      canPop: !_isFormModified(),
+      onPopInvokedWithResult: (bool didPop, bool? result) async {
+        if (didPop) {
+          return;
+        }
+        final navigator = Navigator.of(context);
+        final bool shouldPop = await _showDiscardDialog();
+        if (shouldPop) {
+          navigator.pop();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () async {
+              final navigator = Navigator.of(context);
+              final shouldPop = await _showDiscardDialog();
+              if (shouldPop) {
+                navigator.pop();
+              }
+            },
           ),
+          title: Text(
+            isEditing ? 'Edit Product' : 'New Product',
+            style: titleTextStyle?.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: (titleTextStyle.fontSize ?? 22.0) - 1.0,
+            ),
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FormField<List<XFile>>(
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (value) {
-                  if (_images.isEmpty) {
-                    return 'Please select at least one image.';
-                  }
-                  return null;
-                },
-                builder: (formFieldState) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _images.isEmpty
-                          ? _buildAddPhotoImage(formFieldState.hasError)
-                          : _buildImageCarousel(),
-                      if (formFieldState.hasError)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                          child: Text(
-                            formFieldState.errorText!,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
-                              fontSize: 12,
+        body: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FormField<List<XFile>>(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) {
+                    if (_images.isEmpty) {
+                      return 'Please select at least one image.';
+                    }
+                    return null;
+                  },
+                  builder: (formFieldState) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _images.isEmpty
+                            ? _buildAddPhotoImage(formFieldState.hasError)
+                            : _buildImageCarousel(),
+                        if (formFieldState.hasError)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                            child: Text(
+                              formFieldState.errorText!,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
-                        ),
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 24),
-              TextFormField(
-                controller: _productNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Product Name',
-                  border: OutlineInputBorder(),
+                      ],
+                    );
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a product name';
-                  }
-                  return null;
-                },
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _priceController,
-                decoration: const InputDecoration(
-                  labelText: 'Price',
-                  border: OutlineInputBorder(),
-                  prefixText: '₹ ',
+                const SizedBox(height: 24),
+                TextFormField(
+                  controller: _productNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Product Name',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a product name';
+                    }
+                    return null;
+                  },
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                 ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a price';
-                  }
-                  return null;
-                },
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Sale Price',
-                  border: OutlineInputBorder(),
-                  prefixText: '₹ ',
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _priceController,
+                  decoration: const InputDecoration(
+                    labelText: 'Price',
+                    border: OutlineInputBorder(),
+                    prefixText: '₹ ',
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a price';
+                    }
+                    return null;
+                  },
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                 ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _stockController,
-                decoration: const InputDecoration(
-                  labelText: 'Stock',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Sale Price',
+                    border: OutlineInputBorder(),
+                    prefixText: '₹ ',
+                  ),
+                  keyboardType: TextInputType.number,
                 ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _stockController,
+                  decoration: const InputDecoration(
+                    labelText: 'Stock',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
                 ),
-                maxLines: 3,
-              ),
-            ],
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-      bottomNavigationBar: Transform.translate(
-        offset: const Offset(0, -7),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              if (isEditing)
+        bottomNavigationBar: Transform.translate(
+          offset: const Offset(0, -7),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                if (isEditing)
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _showDeleteConfirmationDialog,
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: Colors.grey.shade300,
+                        foregroundColor: Colors.black87,
+                      ),
+                      child: const Text('Delete'),
+                    ),
+                  ),
+                if (isEditing)
+                  const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: _showDeleteConfirmationDialog,
+                    onPressed: _attemptSave,
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
-                      backgroundColor: Colors.grey.shade300,
-                      foregroundColor: Colors.black87,
+                      backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     ),
-                    child: const Text('Delete'),
+                    child: Text(isEditing ? 'Update Product' : 'Add Product'),
                   ),
                 ),
-              if (isEditing)
-                const SizedBox(width: 16),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: _attemptSave,
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                  child: Text(isEditing ? 'Update Product' : 'Add Product'),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -445,5 +526,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
         ),
       ),
     );
+  }
+}
+
+extension ProductEquals on Product {
+  bool equals(Product other) {
+    const listEquals = ListEquality();
+    return id == other.id &&
+        name == other.name &&
+        price == other.price &&
+        stock == other.stock &&
+        listEquals.equals(images, other.images);
   }
 }
