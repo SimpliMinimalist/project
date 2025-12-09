@@ -31,6 +31,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   final _productNameController = TextEditingController();
   final _priceController = TextEditingController();
+  final _salePriceController = TextEditingController();
   final _stockController = TextEditingController();
   final _descriptionController = TextEditingController();
 
@@ -43,25 +44,45 @@ class _AddProductScreenState extends State<AddProductScreen> {
     if (widget.product != null) {
       _initialProduct = widget.product!.copyWith();
       _productNameController.text = widget.product!.name;
+      _descriptionController.text = widget.product!.description ?? '';
       _priceController.text = widget.product!.price.toString();
+      _salePriceController.text = widget.product!.salePrice?.toString() ?? '';
       _stockController.text = widget.product!.stock?.toString() ?? '';
       _images.addAll(widget.product!.images.map((path) => XFile(path)));
     }
+    _productNameController.addListener(_onFormChanged);
+    _priceController.addListener(_onFormChanged);
+    _salePriceController.addListener(_onFormChanged);
+    _stockController.addListener(_onFormChanged);
+    _descriptionController.addListener(_onFormChanged);
   }
 
   @override
   void dispose() {
+    _productNameController.removeListener(_onFormChanged);
+    _priceController.removeListener(_onFormChanged);
+    _salePriceController.removeListener(_onFormChanged);
+    _stockController.removeListener(_onFormChanged);
+    _descriptionController.removeListener(_onFormChanged);
     _productNameController.dispose();
     _priceController.dispose();
+    _salePriceController.dispose();
     _stockController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  void _onFormChanged() {
+    setState(() {
+      // This is just to trigger a rebuild and update the PopScope
+    });
   }
 
   bool _isFormModified() {
     if (widget.product == null) {
       return _productNameController.text.isNotEmpty ||
           _priceController.text.isNotEmpty ||
+          _salePriceController.text.isNotEmpty ||
           _stockController.text.isNotEmpty ||
           _descriptionController.text.isNotEmpty ||
           _images.isNotEmpty;
@@ -69,7 +90,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
       final currentProduct = Product(
         id: _initialProduct!.id,
         name: _productNameController.text,
+        description: _descriptionController.text,
         price: double.tryParse(_priceController.text) ?? 0.0,
+        salePrice: double.tryParse(_salePriceController.text),
         stock: int.tryParse(_stockController.text),
         images: _images.map((image) => image.path).toList(),
       );
@@ -106,6 +129,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   void _attemptSave() {
     if (_formKey.currentState!.validate()) {
       final stockValue = _stockController.text.isNotEmpty ? int.parse(_stockController.text) : null;
+      final salePriceValue = _salePriceController.text.isNotEmpty ? double.parse(_salePriceController.text) : null;
       final navigator = Navigator.of(context);
 
       if (widget.product == null) {
@@ -113,7 +137,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
         final newProduct = Product(
           id: const Uuid().v4(),
           name: _productNameController.text,
+          description: _descriptionController.text,
           price: double.parse(_priceController.text),
+          salePrice: salePriceValue,
           stock: stockValue,
           images: _images.map((image) => image.path).toList(),
         );
@@ -128,7 +154,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
         final updatedProduct = Product(
           id: widget.product!.id,
           name: _productNameController.text,
+          description: _descriptionController.text,
           price: double.parse(_priceController.text),
+          salePrice: salePriceValue,
           stock: stockValue,
           images: _images.map((image) => image.path).toList(),
         );
@@ -314,6 +342,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  controller: _salePriceController,
                   decoration: const InputDecoration(
                     labelText: 'Sale Price',
                     border: OutlineInputBorder(),
@@ -534,7 +563,9 @@ extension ProductEquals on Product {
     const listEquals = ListEquality();
     return id == other.id &&
         name == other.name &&
+        description == other.description &&
         price == other.price &&
+        salePrice == other.salePrice &&
         stock == other.stock &&
         listEquals.equals(images, other.images);
   }
