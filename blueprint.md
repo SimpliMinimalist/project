@@ -1,9 +1,10 @@
+# East: Blueprint
 
-# Project Blueprint
+This document outlines the development plan and feature set for the East application, a simple e-commerce management app.
 
 ## Overview
 
-This project is a Flutter application that allows users to manage and sell products. It includes features for adding, viewing, and managing products. The application is designed to be user-friendly and visually appealing, with a focus on a clean and modern user interface.
+The East app allows users to manage their store's products, including adding, viewing, editing, and deleting items. It features a clean, modern user interface built with Flutter and follows best practices for a smooth user experience.
 
 ## Features
 
@@ -19,15 +20,13 @@ This project is a Flutter application that allows users to manage and sell produ
     *   A dedicated screen for adding new products.
     *   An image carousel for displaying product images.
     *   A smooth page indicator for the image carousel.
+*   **Search and Navigation:**
+    *   Implemented a search screen to filter products by name.
+    *   Enabled navigation from the search results to the "Edit Product" screen.
 *   **Styling and Theming:**
     *   A consistent color scheme and typography.
     *   A modern and clean design with a focus on user experience.
 
-### Current Task: Implement Discard Changes Confirmation
+### Current Task: Finalize and Commit Changes
 
-*   **Objective:** Prevent accidental data loss when editing a product by showing a confirmation dialog if there are unsaved changes.
-*   **Steps:**
-    1.  **Detect Changes:** Track the initial state of the product when the "Edit Product" screen is opened.
-    2.  **Intercept Back Navigation:** Use `WillPopScope` to intercept the back button press and back gestures.
-    3.  **Show Confirmation Dialog:** If changes are detected, display a dialog with the message "Discard changes?" and options to "Continue editing" or "Discard".
-    4.  **Handle User's Choice:** The app will either stay on the screen or navigate back based on the user's selection.
+The current task is to commit the implemented search and edit functionality to the repository.
