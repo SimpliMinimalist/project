@@ -15,24 +15,22 @@ class SearchProductScreen extends StatefulWidget {
 
 class _SearchProductScreenState extends State<SearchProductScreen> {
   final TextEditingController _searchController = TextEditingController();
-  bool _isTyping = false;
   List<Product> _filteredProducts = [];
 
   @override
   void initState() {
     super.initState();
     final productProvider = Provider.of<ProductProvider>(context, listen: false);
+    _filteredProducts = productProvider.products;
     _searchController.addListener(() {
       setState(() {
-        _isTyping = _searchController.text.isNotEmpty;
-        if (_isTyping) {
+        final searchTerm = _searchController.text.toLowerCase();
+        if (searchTerm.isNotEmpty) {
           _filteredProducts = productProvider.products
-              .where((product) => product.name
-                  .toLowerCase()
-                  .contains(_searchController.text.toLowerCase()))
+              .where((product) => product.name.toLowerCase().contains(searchTerm))
               .toList();
         } else {
-          _filteredProducts = [];
+          _filteredProducts = productProvider.products;
         }
       });
     });
@@ -74,7 +72,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                       icon: const Icon(Icons.arrow_back),
                       onPressed: () => context.pop(),
                     ),
-                    trailing: _isTyping
+                    trailing: _searchController.text.isNotEmpty
                         ? [
                             IconButton(
                               icon: const Icon(Icons.clear),
@@ -90,9 +88,9 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                 Expanded(
                   child: _filteredProducts.isEmpty
                       ? Center(
-                          child: Text(_isTyping
+                          child: Text(_searchController.text.isNotEmpty
                               ? 'No products found.'
-                              : 'Search for products to see results.'),
+                              : 'No products available.'),
                         )
                       : ListView.builder(
                           itemCount: _filteredProducts.length,
