@@ -22,15 +22,18 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
   void initState() {
     super.initState();
     final productProvider = Provider.of<ProductProvider>(context, listen: false);
-    _filteredProducts = productProvider.products;
     _searchController.addListener(() {
       setState(() {
         _isTyping = _searchController.text.isNotEmpty;
-        _filteredProducts = productProvider.products
-            .where((product) => product.name
-                .toLowerCase()
-                .contains(_searchController.text.toLowerCase()))
-            .toList();
+        if (_isTyping) {
+          _filteredProducts = productProvider.products
+              .where((product) => product.name
+                  .toLowerCase()
+                  .contains(_searchController.text.toLowerCase()))
+              .toList();
+        } else {
+          _filteredProducts = [];
+        }
       });
     });
   }
@@ -94,7 +97,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                             final product = _filteredProducts[index];
                             return InkWell(
                               onTap: () {
-                                context.go('/edit-product', extra: product);
+                                context.push('/edit-product', extra: product);
                               },
                               child: ProductCard(product: product),
                             );
