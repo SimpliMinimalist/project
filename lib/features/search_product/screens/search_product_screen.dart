@@ -56,32 +56,35 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
         backgroundColor: Colors.grey[200],
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
               children: [
-                SearchBar(
-                  constraints: const BoxConstraints(minHeight: 52, maxHeight: 52),
-                  controller: _searchController,
-                  hintText: 'Search Products',
-                  elevation: WidgetStateProperty.all(0.0),
-                  backgroundColor: WidgetStateProperty.all(Colors.white),
-                  shape: WidgetStateProperty.all(const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(100)),
-                  )),
-                  leading: IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () => context.pop(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: SearchBar(
+                    constraints: const BoxConstraints(minHeight: 52, maxHeight: 52),
+                    controller: _searchController,
+                    hintText: 'Search Products',
+                    elevation: WidgetStateProperty.all(0.0),
+                    backgroundColor: WidgetStateProperty.all(Colors.white),
+                    shape: WidgetStateProperty.all(const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(100)),
+                    )),
+                    leading: IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () => context.pop(),
+                    ),
+                    trailing: _isTyping
+                        ? [
+                            IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _searchController.clear();
+                              },
+                            )
+                          ]
+                        : null,
                   ),
-                  trailing: _isTyping
-                      ? [
-                          IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _searchController.clear();
-                            },
-                          )
-                        ]
-                      : null,
                 ),
                 const SizedBox(height: 16),
                 Expanded(
