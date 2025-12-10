@@ -110,6 +110,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: 24, height: 24),
                   onPressed: () {},
                 ),
+                IconButton(
+                  icon: SvgPicture.asset('assets/icons/profile.svg',
+                      width: 24, height: 24),
+                  onPressed: () {
+                  },
+                ),
               ],
             ),
             productProvider.products.isEmpty
