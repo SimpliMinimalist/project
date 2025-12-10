@@ -118,23 +118,26 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Text('No products yet. Add one!'),
                     ),
                   )
-                : SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final product = productProvider.products[index];
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AddProductScreen(product: product),
-                              ),
-                            );
-                          },
-                          child: ProductCard(product: product),
-                        );
-                      },
-                      childCount: productProvider.products.length,
+                : SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final product = productProvider.products[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AddProductScreen(product: product),
+                                ),
+                              );
+                            },
+                            child: ProductCard(product: product),
+                          );
+                        },
+                        childCount: productProvider.products.length,
+                      ),
                     ),
                   ),
           ],

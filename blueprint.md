@@ -12,7 +12,7 @@ The East app allows users to manage their store's products, including adding, vi
 
 *   **Product Management:**
     *   Add new products with a name, price, stock, and multiple images.
-    *   View a list of all products in a grid layout on the home screen.
+    *   View a list of all products on the home screen.
     *   Edit existing products.
     *   Delete existing products.
 *   **Search and Navigation:**
@@ -26,10 +26,12 @@ The East app allows users to manage their store's products, including adding, vi
     *   A smooth page indicator for the image carousel.
 *   **Search UX Improvements:**
     *   The search screen now displays all products by default and filters them as the user types.
-*   **Styling and Theming:**
+*   **Layout and Styling:**
     *   A consistent color scheme and typography.
     *   A modern and clean design with a focus on user experience.
+    *   **Refactored `ProductCard`:** Removed internal margins to make it a more composable widget.
+    *   **Fixed Layout Inconsistencies:** Resolved the "double padding" issue on the search results screen by adjusting padding on the home screen's product list.
 
-### Current Task: Commit Reverted Search and Layout Changes
+### Current Task: Commit Layout Fixes
 
-The current task is to commit the reverted search and layout changes to the repository.
+The current task is to commit the layout fixes for the product cards and update the repository.
