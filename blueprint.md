@@ -41,12 +41,11 @@ The East app allows users to manage their store's products, including adding, vi
 *   **Orders Screen:**
     *   Created a new "Orders" screen accessible from the notification icon on the home screen.
     *   The screen includes an app bar with the title "Orders" and custom SVG icons for search, history, and filter.
-    *   Integrated the `CustomSearchBar` with a toggle animation, allowing users to switch between the app bar title and the search input field.
-    *   Ensured the back arrow on the search bar correctly dismisses the search UI without navigating away from the screen, providing a consistent user experience.
-    *   **Fixed Status Bar Issue:** Wrapped the `CustomSearchBar` in a `SafeArea` widget to prevent the status bar from disappearing when the search is activated.
-    *   **Corrected AppBar Alignment:** Removed custom padding from the `AppBar` and applied it only to the `CustomSearchBar` to ensure a consistent, full-width `AppBar` layout.
-    *   **Fixed Status Bar Color:** Explicitly set the `SystemUiOverlayStyle` in the main `AppBarTheme` to ensure the status bar text and icons are always dark.
+    *   **Refactored Search:** Removed the complex `AnimatedSwitcher` and in-page search UI. The search icon now navigates to a dedicated `SearchOrdersScreen` for a more consistent user experience.
+*   **Search Orders Screen:**
+    *   Created a dedicated screen for searching orders, located at `lib/features/search_orders/screens/search_orders_screen.dart`.
+    *   This screen features the `CustomSearchBar` in the `AppBar` and provides a focused search interface for orders, consistent with the product search functionality.
 
 ### Current Task: Commit and Push Changes
 
-The current task is to commit and push the fix for the status bar color.
+The current task is to commit and push the refactored search functionality for the Orders screen.
