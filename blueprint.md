@@ -23,8 +23,8 @@ The East app allows users to manage their store's products, including adding, vi
 *   **Shared Widgets:**
     *   **`CustomSearchBar`:** Created a reusable, stateful search bar widget.
         *   Located in `lib/shared/widgets/custom_search_bar.dart`.
-        *   Features a pill-shaped border radius (100).
-        *   The clear text button now uses a custom `cancel.svg` icon with an 18px size.
+        *   Features a pill-shaped border radius (100) and a height of 48px.
+        *   The clear text button now uses a custom `cancel.svg` icon with a 20px size.
         *   The "clear" text button is only visible when the user has started typing.
         *   Supports a configurable back button and custom trailing actions.
 *   **User Interface:**

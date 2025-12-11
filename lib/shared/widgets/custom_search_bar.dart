@@ -48,7 +48,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
       child: SearchBar(
-        constraints: const BoxConstraints(minHeight: 52, maxHeight: 52),
+        constraints: const BoxConstraints(minHeight: 48, maxHeight: 48),
         controller: widget.controller,
         hintText: widget.hintText,
         elevation: WidgetStateProperty.all(0.0),
@@ -71,8 +71,8 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
                 IconButton(
                   icon: SvgPicture.asset(
                     'assets/icons/cancel.svg',
-                    width: 18,
-                    height: 18,
+                    width: 20,
+                    height: 20,
                   ),
                   onPressed: widget.onClear ??
                       () {
