@@ -31,7 +31,10 @@ The East app allows users to manage their store's products, including adding, vi
     *   A modern and clean design with a focus on user experience.
     *   **Refactored `ProductCard`:** Removed internal margins to make it a more composable widget.
     *   **Fixed Layout Inconsistencies:** Resolved the "double padding" issue on the search results screen by adjusting padding on the home screen's product list.
+*   **Orders Screen:**
+    *   Created a new "Orders" screen accessible from the notification icon on the home screen.
+    *   The screen includes an app bar with the title "Orders" and custom SVG icons for search, history, and filter.
 
-### Current Task: Commit Layout Fixes
+### Current Task: Commit and Push Changes
 
-The current task is to commit the layout fixes for the product cards and update the repository.
+The current task is to commit and push the new "Orders" screen and related changes to the repository.
