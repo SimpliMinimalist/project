@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:myapp/shared/widgets/clearable_text_form_field.dart';
 
 class AddProductScreen extends StatefulWidget {
   final Product? product;
@@ -249,6 +250,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             ),
             TextButton(
               onPressed: () {
+                _formKey.currentState?.reset();
                 setState(() {
                   _productNameController.clear();
                   _priceController.clear();
@@ -350,12 +352,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   },
                 ),
                 const SizedBox(height: 24),
-                TextFormField(
+                ClearableTextFormField(
                   controller: _productNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Product Name',
-                    border: OutlineInputBorder(),
-                  ),
+                  labelText: 'Product Name',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a product name';
@@ -365,13 +364,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                ClearableTextFormField(
                   controller: _priceController,
-                  decoration: const InputDecoration(
-                    labelText: 'Price',
-                    border: OutlineInputBorder(),
-                    prefixText: '₹ ',
-                  ),
+                  labelText: 'Price',
+                  prefixText: '₹ ',
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -382,31 +378,22 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                ClearableTextFormField(
                   controller: _salePriceController,
-                  decoration: const InputDecoration(
-                    labelText: 'Sale Price',
-                    border: OutlineInputBorder(),
-                    prefixText: '₹ ',
-                  ),
+                  labelText: 'Sale Price',
+                  prefixText: '₹ ',
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                ClearableTextFormField(
                   controller: _stockController,
-                  decoration: const InputDecoration(
-                    labelText: 'Stock',
-                    border: OutlineInputBorder(),
-                  ),
+                  labelText: 'Stock',
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                ClearableTextFormField(
                   controller: _descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
-                  ),
+                  labelText: 'Description',
                   maxLines: 3,
                 ),
               ],

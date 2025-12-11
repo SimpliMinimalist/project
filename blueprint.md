@@ -15,7 +15,7 @@ The East app allows users to manage their store's products, including adding, vi
     *   View a list of all products on the home screen.
     *   Edit existing products.
     *   Delete existing products.
-    *   **Reset Form:** Added a reset button to the app bar of the "Add/Edit Product" screen. This allows users to clear all input fields and selected photos at once after a confirmation dialog.
+    *   **Reset Form:** Added a reset button to the app bar of the "Add/Edit Product" screen. This allows users to clear all input fields and selected photos at once after a confirmation dialog. The validation is no longer triggered on reset.
 *   **Search and Navigation:**
     *   Implemented a search screen to filter products by name.
     *   Enabled navigation from the search results to the "Edit Product" screen.
@@ -28,9 +28,10 @@ The East app allows users to manage their store's products, including adding, vi
         *   The clear text button now uses a custom `cancel.svg` icon with a 20px size.
         *   The "clear" text button is only visible when the user has started typing.
         *   Supports a configurable back button and custom trailing actions.
+    *   **`ClearableTextFormField`:** A reusable text form field with a clear button that appears when the field is focused and not empty.
 *   **User Interface:**
     *   A home screen with a scroll-aware Floating Action Button (FAB) and a snapping app bar.
-    *   A dedicated screen for adding new products.
+    *   A dedicated screen for adding new products with improved text input fields.
     *   An image carousel for displaying product images.
     *   A smooth page indicator for the image carousel.
 *   **Search UX Improvements:**
@@ -50,4 +51,4 @@ The East app allows users to manage their store's products, including adding, vi
 
 ### Current Task: Commit and Push Changes
 
-The current task is to commit and push the customization of the search bar's clear icon.
+The current task is to commit and push the implementation of the `ClearableTextFormField` and the fix for the form reset functionality.
