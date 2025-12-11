@@ -15,6 +15,7 @@ The East app allows users to manage their store's products, including adding, vi
     *   View a list of all products on the home screen.
     *   Edit existing products.
     *   Delete existing products.
+    *   **Reset Form:** Added a reset button to the app bar of the "Add/Edit Product" screen. This allows users to clear all input fields and selected photos at once after a confirmation dialog.
 *   **Search and Navigation:**
     *   Implemented a search screen to filter products by name.
     *   Enabled navigation from the search results to the "Edit Product" screen.

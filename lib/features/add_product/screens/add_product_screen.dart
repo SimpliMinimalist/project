@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class AddProductScreen extends StatefulWidget {
   final Product? product;
@@ -233,6 +234,40 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
+  void _showResetConfirmationDialog() {
+    final navigator = Navigator.of(context);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Reset form?'),
+          content: const Text('All entered data and photos will be cleared.'),
+          actions: [
+            TextButton(
+              onPressed: () => navigator.pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _productNameController.clear();
+                  _priceController.clear();
+                  _salePriceController.clear();
+                  _stockController.clear();
+                  _descriptionController.clear();
+                  _images.clear();
+                  _activePage = 0;
+                });
+                navigator.pop();
+              },
+              child: const Text('Reset'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final titleTextStyle = Theme.of(context).textTheme.titleLarge;
@@ -269,6 +304,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
               fontSize: (titleTextStyle.fontSize ?? 22.0) - 1.0,
             ),
           ),
+          actions: [
+            IconButton(
+              icon: SvgPicture.asset('assets/icons/reset.svg', width: 24, height: 24),
+              onPressed: _showResetConfirmationDialog,
+            ),
+          ],
           centerTitle: true,
         ),
         body: Form(
