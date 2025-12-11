@@ -508,7 +508,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               label: const Text('Add More Photos'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                backgroundColor: Colors.grey.shade300,
+                backgroundColor: Colors.white,
                 foregroundColor: Colors.black87,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(100),
@@ -524,7 +524,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   Widget _buildAddPhotoImage(bool hasError) {
     final backgroundColor = hasError
         ? Theme.of(context).colorScheme.error.withAlpha(25)
-        : Colors.grey.shade200;
+        : Colors.white;
 
     return AspectRatio(
       aspectRatio: 1 / 1,
