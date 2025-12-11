@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
-import 'package:myapp/models/product_model.dart';
+import 'package:myapp/features/add_product/models/product_model.dart';
 import 'package:myapp/providers/product_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';

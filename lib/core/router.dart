@@ -6,7 +6,7 @@ import 'package:myapp/features/home/screens/home_screen.dart';
 import 'package:myapp/features/add_product/screens/add_product_screen.dart';
 import 'package:myapp/features/orders/screens/orders_screen.dart';
 import 'package:myapp/features/search_product/screens/search_product_screen.dart';
-import 'package:myapp/models/product_model.dart';
+import 'package:myapp/features/add_product/models/product_model.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/',

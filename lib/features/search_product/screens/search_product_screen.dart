@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myapp/features/add_product/widgets/product_card.dart';
-import 'package:myapp/models/product_model.dart';
+import 'package:myapp/features/add_product/models/product_model.dart';
 import 'package:myapp/providers/product_provider.dart';
 import 'package:myapp/shared/widgets/custom_search_bar.dart';
 import 'package:provider/provider.dart';
