@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 const Color primaryColor = Color(0xFFFF7A21);
@@ -11,6 +12,10 @@ final ThemeData appTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
   useMaterial3: true,
   appBarTheme: const AppBarTheme(
+    systemOverlayStyle: SystemUiOverlayStyle(
+      statusBarBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.dark,
+    ),
     backgroundColor: backgroundColor,
     elevation: 0,
     iconTheme: IconThemeData(color: Colors.black),

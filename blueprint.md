@@ -45,7 +45,8 @@ The East app allows users to manage their store's products, including adding, vi
     *   Ensured the back arrow on the search bar correctly dismisses the search UI without navigating away from the screen, providing a consistent user experience.
     *   **Fixed Status Bar Issue:** Wrapped the `CustomSearchBar` in a `SafeArea` widget to prevent the status bar from disappearing when the search is activated.
     *   **Corrected AppBar Alignment:** Removed custom padding from the `AppBar` and applied it only to the `CustomSearchBar` to ensure a consistent, full-width `AppBar` layout.
+    *   **Fixed Status Bar Color:** Explicitly set the `SystemUiOverlayStyle` in the main `AppBarTheme` to ensure the status bar text and icons are always dark.
 
 ### Current Task: Commit and Push Changes
 
-The current task is to commit and push the fix for the status bar and `AppBar` alignment on the `OrdersScreen`.
+The current task is to commit and push the fix for the status bar color.
