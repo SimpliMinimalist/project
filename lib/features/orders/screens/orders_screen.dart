@@ -40,53 +40,55 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight + 16.0),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            transitionBuilder: (Widget child, Animation<double> animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
-            },
-            child: _isSearching
-                ? CustomSearchBar(
-                    key: const ValueKey('SearchBar'),
-                    controller: _searchController,
-                    hintText: 'Search Orders',
-                    onChanged: _onSearchChanged,
-                    hasBackButton: true,
-                    onBack: _toggleSearch, // Use the back button to exit search mode
-                  )
-                : AppBar(
-                    key: const ValueKey('DefaultAppBar'),
-                    title: const Text('Orders'),
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    actions: [
-                      IconButton(
-                        icon: SvgPicture.asset('assets/icons/search.svg',
-                            width: 24, height: 24),
-                        onPressed: _toggleSearch,
-                      ),
-                      IconButton(
-                        icon: SvgPicture.asset('assets/icons/history.svg',
-                            width: 24, height: 24),
-                        onPressed: () {
-                          // TODO: Implement history functionality
-                        },
-                      ),
-                      IconButton(
-                        icon: SvgPicture.asset('assets/icons/filter.svg',
-                            width: 24, height: 24),
-                        onPressed: () {
-                          // TODO: Implement filter functionality
-                        },
-                      ),
-                    ],
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+          child: _isSearching
+              ? SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: CustomSearchBar(
+                      key: const ValueKey('SearchBar'),
+                      controller: _searchController,
+                      hintText: 'Search Orders',
+                      onChanged: _onSearchChanged,
+                      hasBackButton: true,
+                      onBack: _toggleSearch,
+                    ),
                   ),
-          ),
+                )
+              : AppBar(
+                  key: const ValueKey('DefaultAppBar'),
+                  title: const Text('Orders'),
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  actions: [
+                    IconButton(
+                      icon: SvgPicture.asset('assets/icons/search.svg',
+                          width: 24, height: 24),
+                      onPressed: _toggleSearch,
+                    ),
+                    IconButton(
+                      icon: SvgPicture.asset('assets/icons/history.svg',
+                          width: 24, height: 24),
+                      onPressed: () {
+                        // TODO: Implement history functionality
+                      },
+                    ),
+                    IconButton(
+                      icon: SvgPicture.asset('assets/icons/filter.svg',
+                          width: 24, height: 24),
+                      onPressed: () {
+                        // TODO: Implement filter functionality
+                      },
+                    ),
+                  ],
+                ),
         ),
       ),
       body: const Center(

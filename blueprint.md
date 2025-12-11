@@ -43,7 +43,9 @@ The East app allows users to manage their store's products, including adding, vi
     *   The screen includes an app bar with the title "Orders" and custom SVG icons for search, history, and filter.
     *   Integrated the `CustomSearchBar` with a toggle animation, allowing users to switch between the app bar title and the search input field.
     *   Ensured the back arrow on the search bar correctly dismisses the search UI without navigating away from the screen, providing a consistent user experience.
+    *   **Fixed Status Bar Issue:** Wrapped the `CustomSearchBar` in a `SafeArea` widget to prevent the status bar from disappearing when the search is activated.
+    *   **Corrected AppBar Alignment:** Removed custom padding from the `AppBar` and applied it only to the `CustomSearchBar` to ensure a consistent, full-width `AppBar` layout.
 
 ### Current Task: Commit and Push Changes
 
-The current task is to commit and push all recent changes, including the refactored `CustomSearchBar` and the updated `OrdersScreen` and `SearchProductScreen`.
+The current task is to commit and push the fix for the status bar and `AppBar` alignment on the `OrdersScreen`.
