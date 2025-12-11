@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomSearchBar extends StatefulWidget {
   final TextEditingController controller;
@@ -68,7 +69,11 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
             [
               if (widget.controller.text.isNotEmpty)
                 IconButton(
-                  icon: const Icon(Icons.clear),
+                  icon: SvgPicture.asset(
+                    'assets/icons/cancel.svg',
+                    width: 18,
+                    height: 18,
+                  ),
                   onPressed: widget.onClear ??
                       () {
                         widget.controller.clear();
