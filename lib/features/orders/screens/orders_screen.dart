@@ -30,14 +30,12 @@ class OrdersScreen extends StatelessWidget {
             icon: SvgPicture.asset('assets/icons/history.svg',
                 width: 24, height: 24),
             onPressed: () {
-              // TODO: Implement history functionality
             },
           ),
           IconButton(
             icon: SvgPicture.asset('assets/icons/filter.svg',
                 width: 24, height: 24),
             onPressed: () {
-              // TODO: Implement filter functionality
             },
           ),
         ],
