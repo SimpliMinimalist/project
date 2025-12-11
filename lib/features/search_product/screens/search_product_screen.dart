@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:myapp/features/add_product/widgets/product_card.dart';
 import 'package:myapp/models/product_model.dart';
 import 'package:myapp/providers/product_provider.dart';
+import 'package:myapp/shared/widgets/custom_search_bar.dart';
 import 'package:provider/provider.dart';
 
 class SearchProductScreen extends StatefulWidget {
@@ -16,23 +17,25 @@ class SearchProductScreen extends StatefulWidget {
 class _SearchProductScreenState extends State<SearchProductScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<Product> _filteredProducts = [];
+  late final ProductProvider _productProvider;
 
   @override
   void initState() {
     super.initState();
-    final productProvider = Provider.of<ProductProvider>(context, listen: false);
-    _filteredProducts = productProvider.products;
-    _searchController.addListener(() {
-      setState(() {
-        final searchTerm = _searchController.text.toLowerCase();
-        if (searchTerm.isNotEmpty) {
-          _filteredProducts = productProvider.products
-              .where((product) => product.name.toLowerCase().contains(searchTerm))
-              .toList();
-        } else {
-          _filteredProducts = productProvider.products;
-        }
-      });
+    _productProvider = Provider.of<ProductProvider>(context, listen: false);
+    _filteredProducts = _productProvider.products;
+  }
+
+  void _filterProducts(String searchTerm) {
+    setState(() {
+      if (searchTerm.isNotEmpty) {
+        _filteredProducts = _productProvider.products
+            .where(
+                (product) => product.name.toLowerCase().contains(searchTerm.toLowerCase()))
+            .toList();
+      } else {
+        _filteredProducts = _productProvider.products;
+      }
     });
   }
 
@@ -57,32 +60,14 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 16.0),
-                  child: SearchBar(
-                    constraints: const BoxConstraints(minHeight: 52, maxHeight: 52),
-                    controller: _searchController,
-                    hintText: 'Search Products',
-                    elevation: WidgetStateProperty.all(0.0),
-                    backgroundColor: WidgetStateProperty.all(Colors.white),
-                    shape: WidgetStateProperty.all(const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(100)),
-                    )),
-                    leading: IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () => context.pop(),
-                    ),
-                    trailing: _searchController.text.isNotEmpty
-                        ? [
-                            IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                _searchController.clear();
-                              },
-                            )
-                          ]
-                        : null,
-                  ),
+                CustomSearchBar(
+                  controller: _searchController,
+                  hintText: 'Search Products',
+                  onChanged: _filterProducts,
+                  onClear: () {
+                    _searchController.clear();
+                    _filterProducts('');
+                  },
                 ),
                 const SizedBox(height: 16),
                 Expanded(
