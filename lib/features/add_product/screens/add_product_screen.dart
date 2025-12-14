@@ -176,7 +176,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
       barrierColor: Colors.black.withAlpha(102),
       transitionDuration: const Duration(milliseconds: 200),
       pageBuilder: (context, animation, secondaryAnimation) {
-        return const DraftsPopup();
+        return Align(
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: const DraftsPopup(),
+          ),
+        );
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return FadeTransition(
@@ -191,7 +197,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       },
     );
   }
-
 
   void _attemptSave() {
     if (_formKey.currentState!.validate()) {
