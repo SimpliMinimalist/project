@@ -12,6 +12,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:myapp/shared/widgets/clearable_text_form_field.dart';
+import 'package:myapp/features/add_product/widgets/drafts_popup.dart';
 
 class AddProductScreen extends StatefulWidget {
   final Product? product;
@@ -102,42 +103,107 @@ class _AddProductScreenState extends State<AddProductScreen> {
     }
   }
 
-  Future<bool> _showDiscardDialog() async {
+  Future<void> _showSaveDraftDialog() async {
+    final navigator = Navigator.of(context);
     if (!_isFormModified()) {
-      return true;
+      navigator.pop();
+      return;
     }
 
-    final navigator = Navigator.of(context);
-    final result = await showDialog<bool>(
+    final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Discard changes?'),
-        content: const Text('You have unsaved changes. Are you sure you want to discard them?'),
+        title: const Text('Save changes?'),
+        content: const Text('Do you want to save this product as a draft?'),
         actions: [
           TextButton(
-            onPressed: () => navigator.pop(false),
+            onPressed: () => Navigator.of(context).pop('discard'),
+            child: const Text('Discard'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop('continue'),
             child: const Text('Continue editing'),
           ),
           TextButton(
-            onPressed: () => navigator.pop(true),
-            child: const Text('Discard'),
+            onPressed: () => Navigator.of(context).pop('save'),
+            child: const Text('Save as Draft'),
           ),
         ],
       ),
     );
-    return result ?? false;
+
+    if (!mounted) return;
+
+    if (result == 'save') {
+      _saveDraft();
+      Navigator.of(context).pop();
+    } else if (result == 'discard') {
+      Navigator.of(context).pop();
+    }
   }
+
+
+  void _saveDraft() {
+    final stockValue = int.tryParse(_stockController.text);
+    final salePriceValue = double.tryParse(_salePriceController.text);
+    final priceValue = double.tryParse(_priceController.text) ?? 0.0;
+
+    final draftProduct = Product(
+      id: widget.product?.id ?? const Uuid().v4(),
+      name: _productNameController.text,
+      description: _descriptionController.text,
+      price: priceValue,
+      salePrice: salePriceValue,
+      stock: stockValue,
+      images: _images.map((image) => image.path).toList(),
+      isDraft: true,
+    );
+
+    Provider.of<ProductProvider>(context, listen: false).saveDraft(draftProduct);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Product saved as draft!')),
+      );
+    }
+  }
+
+  void _showDraftsPopup() {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return const Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [DraftsPopup()],
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, -1),
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        );
+      },
+    );
+  }
+
 
   void _attemptSave() {
     if (_formKey.currentState!.validate()) {
-      final stockValue = _stockController.text.isNotEmpty ? int.parse(_stockController.text) : null;
-      final salePriceValue = _salePriceController.text.isNotEmpty ? double.parse(_salePriceController.text) : null;
+      final stockValue = int.tryParse(_stockController.text);
+      final salePriceValue = double.tryParse(_salePriceController.text);
       final navigator = Navigator.of(context);
 
-      if (widget.product == null) {
-        // Add new product
+      if (widget.product == null || widget.product!.isDraft) {
+        // Add new product or update from draft
         final newProduct = Product(
-          id: const Uuid().v4(),
+          id: widget.product?.id ?? const Uuid().v4(),
           name: _productNameController.text,
           description: _descriptionController.text,
           price: double.parse(_priceController.text),
@@ -169,7 +235,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
           );
         }
       }
-      navigator.pop();
+      if (mounted) {
+        navigator.pop();
+      }
     }
   }
 
@@ -222,47 +290,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
               onPressed: () {
                 productProvider.deleteProduct(widget.product!.id);
                 navigator.pop();
-                navigator.pop();
-                messenger.showSnackBar(
-                  const SnackBar(content: Text('Product deleted successfully!')),
-                );
+                if (mounted) {
+                    navigator.pop();
+                    messenger.showSnackBar(
+                    const SnackBar(content: Text('Product deleted successfully!')),
+                    );
+                }
               },
               child: const Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showResetConfirmationDialog() {
-    final navigator = Navigator.of(context);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Reset form?'),
-          content: const Text('All entered data and photos will be cleared.'),
-          actions: [
-            TextButton(
-              onPressed: () => navigator.pop(),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                _formKey.currentState?.reset();
-                setState(() {
-                  _productNameController.clear();
-                  _priceController.clear();
-                  _salePriceController.clear();
-                  _stockController.clear();
-                  _descriptionController.clear();
-                  _images.clear();
-                  _activePage = 0;
-                });
-                navigator.pop();
-              },
-              child: const Text('Reset'),
             ),
           ],
         );
@@ -273,7 +308,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     final titleTextStyle = Theme.of(context).textTheme.titleLarge;
-    final isEditing = widget.product != null;
+    final isEditing = widget.product != null && !widget.product!.isDraft;
+    final isDraft = widget.product != null && widget.product!.isDraft;
 
     return PopScope(
       canPop: !_isFormModified(),
@@ -281,26 +317,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
         if (didPop) {
           return;
         }
-        final navigator = Navigator.of(context);
-        final bool shouldPop = await _showDiscardDialog();
-        if (shouldPop) {
-          navigator.pop();
-        }
+        _showSaveDraftDialog();
       },
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () async {
-              final navigator = Navigator.of(context);
-              final shouldPop = await _showDiscardDialog();
-              if (shouldPop) {
-                navigator.pop();
-              }
-            },
+            onPressed: _showSaveDraftDialog,
           ),
           title: Text(
-            isEditing ? 'Edit Product' : 'New Product',
+            isEditing ? 'Edit Product' : (isDraft ? 'Edit Draft' : 'New Product'),
             style: titleTextStyle?.copyWith(
               fontWeight: FontWeight.bold,
               fontSize: (titleTextStyle.fontSize ?? 22.0) - 1.0,
@@ -308,8 +334,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
           ),
           actions: [
             IconButton(
-              icon: SvgPicture.asset('assets/icons/reset.svg', width: 24, height: 24),
-              onPressed: _showResetConfirmationDialog,
+              icon: SvgPicture.asset('assets/icons/draft_products.svg', width: 24, height: 24),
+              onPressed: _showDraftsPopup,
             ),
           ],
           centerTitle: true,
@@ -373,6 +399,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a price';
                     }
+                    if (double.tryParse(value) == null) {
+                      return 'Please enter a valid number';
+                    }
                     return null;
                   },
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -383,12 +412,30 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   labelText: 'Sale Price',
                   prefixText: '₹ ',
                   keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value != null &&
+                        value.isNotEmpty &&
+                        double.tryParse(value) == null) {
+                      return 'Please enter a valid number';
+                    }
+                    return null;
+                  },
+                   autovalidateMode: AutovalidateMode.onUserInteraction,
                 ),
                 const SizedBox(height: 16),
                 ClearableTextFormField(
                   controller: _stockController,
                   labelText: 'Stock',
                   keyboardType: TextInputType.number,
+                   validator: (value) {
+                    if (value != null &&
+                        value.isNotEmpty &&
+                        int.tryParse(value) == null) {
+                      return 'Please enter a valid integer';
+                    }
+                    return null;
+                  },
+                   autovalidateMode: AutovalidateMode.onUserInteraction,
                 ),
                 const SizedBox(height: 16),
                 ClearableTextFormField(
@@ -406,7 +453,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                if (isEditing)
+                if (isEditing || isDraft)
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _showDeleteConfirmationDialog,
@@ -418,7 +465,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       child: const Text('Delete'),
                     ),
                   ),
-                if (isEditing)
+                if (isEditing || isDraft)
                   const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(

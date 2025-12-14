@@ -10,6 +10,8 @@ class Product {
   final double? salePrice;
   final int? stock;
   final List<String> images;
+  final bool isDraft;
+  final DateTime? savedAt;
 
   const Product({
     required this.id,
@@ -19,6 +21,8 @@ class Product {
     this.salePrice,
     this.stock,
     required this.images,
+    this.isDraft = false,
+    this.savedAt,
   });
 
   Product copyWith({
@@ -29,6 +33,8 @@ class Product {
     double? salePrice,
     int? stock,
     List<String>? images,
+    bool? isDraft,
+    DateTime? savedAt,
   }) {
     return Product(
       id: id ?? this.id,
@@ -38,6 +44,8 @@ class Product {
       salePrice: salePrice ?? this.salePrice,
       stock: stock ?? this.stock,
       images: images ?? this.images,
+      isDraft: isDraft ?? this.isDraft,
+      savedAt: savedAt ?? this.savedAt,
     );
   }
 }
