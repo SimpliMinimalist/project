@@ -45,6 +45,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
     super.initState();
     if (widget.product != null) {
       _loadProductData(widget.product!);
+    } else {
+       // When creating a new product, clear any lingering selection
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Provider.of<ProductProvider>(context, listen: false).clearSelection();
+      });
     }
     _productNameController.addListener(_onFormChanged);
     _priceController.addListener(_onFormChanged);
@@ -81,6 +86,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _stockController.text = product.stock?.toString() ?? '';
     _images.clear();
     _images.addAll(product.images.map((path) => XFile(path)));
+    
+    // Also update the provider with the loaded draft's ID
+    Provider.of<ProductProvider>(context, listen: false).setSelectedDraftId(product.id);
+
     setState(() {});
   }
 
@@ -164,6 +173,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         Navigator.of(context).pop();
       }
     } else if (result == 'discard') {
+      Provider.of<ProductProvider>(context, listen: false).clearSelection();
       Navigator.of(context).pop();
     }
   }
@@ -255,6 +265,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       final stockValue = int.tryParse(_stockController.text);
       final salePriceValue = double.tryParse(_salePriceController.text);
       final navigator = Navigator.of(context);
+      final productProvider = Provider.of<ProductProvider>(context, listen: false);
 
       if (_initialProduct == null || _initialProduct!.isDraft) {
         final newProduct = Product(
@@ -266,7 +277,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           stock: stockValue,
           images: _images.map((image) => image.path).toList(),
         );
-        Provider.of<ProductProvider>(context, listen: false).addProduct(newProduct);
+        productProvider.addProduct(newProduct);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Product added successfully!')),
@@ -282,7 +293,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           stock: stockValue,
           images: _images.map((image) => image.path).toList(),
         );
-        Provider.of<ProductProvider>(context, listen: false).updateProduct(updatedProduct);
+        productProvider.updateProduct(updatedProduct);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Product updated successfully!')),
@@ -369,6 +380,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       canPop: !_isFormModified(),
       onPopInvokedWithResult: (bool didPop, bool? result) async {
         if (didPop) {
+          Provider.of<ProductProvider>(context, listen: false).clearSelection();
           return;
         }
         _showSaveDraftDialog();

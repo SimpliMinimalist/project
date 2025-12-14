@@ -6,12 +6,19 @@ import 'package:provider/provider.dart';
 import 'package:myapp/providers/product_provider.dart';
 import 'package:myapp/features/add_product/models/product_model.dart';
 
-class DraftsPopup extends StatelessWidget {
+class DraftsPopup extends StatefulWidget {
   const DraftsPopup({super.key});
 
   @override
+  State<DraftsPopup> createState() => _DraftsPopupState();
+}
+
+class _DraftsPopupState extends State<DraftsPopup> {
+  @override
   Widget build(BuildContext context) {
-    final draftProducts = Provider.of<ProductProvider>(context).drafts;
+    final productProvider = Provider.of<ProductProvider>(context);
+    final draftProducts = productProvider.drafts;
+    final selectedDraftId = productProvider.selectedDraftId;
 
     return Material(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
@@ -51,83 +58,107 @@ class DraftsPopup extends StatelessWidget {
                     const SizedBox(height: 8.0),
                 itemBuilder: (context, index) {
                   final product = draftProducts[index];
-                  return _buildDraftTile(context, product);
+                  final isSelected = selectedDraftId == product.id;
+                  return _buildDraftTile(context, product, isSelected);
                 },
               ),
             ),
-          if (draftProducts.isNotEmpty) const SizedBox(height: 8.0),
+           if (draftProducts.isNotEmpty) const SizedBox(height: 8.0),
         ],
       ),
     );
   }
 
-  Widget _buildDraftTile(BuildContext context, Product product) {
+  Widget _buildDraftTile(BuildContext context, Product product, bool isSelected) {
     final formattedDate = product.savedAt != null
         ? DateFormat('d MMM, h:mm a').format(product.savedAt!)
         : 'No date';
 
+    final tileColor = isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : Colors.white;
+
     return Material(
-      color: Colors.white,
+      color: tileColor,
       borderRadius: BorderRadius.circular(12.0),
       child: InkWell(
         borderRadius: BorderRadius.circular(12.0),
         onTap: () {
-          // Pop the dialog and return the selected product
-          Navigator.of(context).pop(product);
+          final productProvider = Provider.of<ProductProvider>(context, listen: false);
+          productProvider.setSelectedDraftId(product.id);
+
+          Future.delayed(const Duration(milliseconds: 250), () {
+            if (mounted) {
+              Navigator.of(context).pop(product);
+            }
+          });
         },
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(8.0),
-                  image: product.images.isNotEmpty
-                      ? DecorationImage(
-                          image: FileImage(File(product.images.first)),
-                          fit: BoxFit.cover,
-                        )
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8.0),
+                    image: product.images.isNotEmpty
+                        ? DecorationImage(
+                            image: FileImage(File(product.images.first)),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: product.images.isEmpty
+                      ? const Icon(Icons.image_outlined, color: Colors.grey)
                       : null,
                 ),
-                child: product.images.isEmpty
-                    ? const Icon(Icons.image_outlined, color: Colors.grey)
-                    : null,
-              ),
-              const SizedBox(width: 12.0),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.name.isNotEmpty ? product.name : 'Untitled Draft',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                const SizedBox(width: 12.0),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.name.isNotEmpty ? product.name : 'Untitled Draft',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4.0),
-                    Text(
-                      formattedDate,
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 12,
+                      const SizedBox(height: 4.0),
+                      Text(
+                        formattedDate,
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 12,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12.0),
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.red),
-                onPressed: () {
-                  _showDeleteDraftConfirmation(context, product.id);
-                },
-              ),
-            ],
+                if (isSelected)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Text(
+                      'Selected',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  onPressed: () {
+                    _showDeleteDraftConfirmation(context, product.id);
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
