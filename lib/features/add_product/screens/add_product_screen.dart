@@ -38,7 +38,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _stockController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  // For tracking changes
   Product? _initialProduct;
 
   @override
@@ -70,9 +69,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   void _onFormChanged() {
-    setState(() {
-      // This is just to trigger a rebuild and update the PopScope
-    });
+    setState(() {});
   }
 
   void _loadProductData(Product product) {
@@ -116,26 +113,47 @@ class _AddProductScreenState extends State<AddProductScreen> {
       return;
     }
 
+    final isEditingPublished = _initialProduct != null && !_initialProduct!.isDraft;
+
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Save changes?'),
-        content: const Text('Do you want to save this product as a draft?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop('discard'),
-            child: const Text('Discard'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop('continue'),
-            child: const Text('Continue editing'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop('save'),
-            child: const Text('Save as Draft'),
-          ),
-        ],
-      ),
+      builder: (context) {
+        if (isEditingPublished) {
+          return AlertDialog(
+            title: const Text('Discard changes?'),
+            content: const Text('You have unsaved changes. Are you sure you want to discard them?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop('continue'),
+                child: const Text('Continue editing'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop('discard'),
+                child: const Text('Discard'),
+              ),
+            ],
+          );
+        } else {
+          return AlertDialog(
+            title: const Text('Save changes?'),
+            content: const Text('Do you want to save this product as a draft?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop('discard'),
+                child: const Text('Discard'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop('continue'),
+                child: const Text('Continue editing'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop('save'),
+                child: const Text('Save as Draft'),
+              ),
+            ],
+          );
+        }
+      },
     );
 
     if (!mounted) return;
@@ -149,7 +167,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       Navigator.of(context).pop();
     }
   }
-
 
   bool _saveDraft() {
   final productProvider = Provider.of<ProductProvider>(context, listen: false);
@@ -240,7 +257,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       final navigator = Navigator.of(context);
 
       if (_initialProduct == null || _initialProduct!.isDraft) {
-        // Add new product or update from draft
         final newProduct = Product(
           id: _initialProduct?.id ?? const Uuid().v4(),
           name: _productNameController.text,
@@ -257,7 +273,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
           );
         }
       } else {
-        // Update existing product
         final updatedProduct = Product(
           id: _initialProduct!.id,
           name: _productNameController.text,
@@ -544,7 +559,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         File(_images[index].path),
                         fit: BoxFit.cover,
                       ),
-                      // Image counter
                       Positioned(
                         top: 8,
                         left: 8,
@@ -563,7 +577,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           ),
                         ),
                       ),
-                      // Delete button
                       Positioned(
                         top: 8,
                         right: 8,
