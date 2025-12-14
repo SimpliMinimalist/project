@@ -198,11 +198,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
       barrierColor: Colors.black.withAlpha(102),
       transitionDuration: const Duration(milliseconds: 200),
       pageBuilder: (context, animation, secondaryAnimation) {
-        return Align(
-          alignment: Alignment.topCenter,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: const DraftsPopup(),
+        return SafeArea(
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: const DraftsPopup(),
+            ),
           ),
         );
       },
