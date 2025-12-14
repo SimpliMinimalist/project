@@ -45,13 +45,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   void initState() {
     super.initState();
     if (widget.product != null) {
-      _initialProduct = widget.product!.copyWith();
-      _productNameController.text = widget.product!.name;
-      _descriptionController.text = widget.product!.description ?? '';
-      _priceController.text = widget.product!.price.toString();
-      _salePriceController.text = widget.product!.salePrice?.toString() ?? '';
-      _stockController.text = widget.product!.stock?.toString() ?? '';
-      _images.addAll(widget.product!.images.map((path) => XFile(path)));
+      _loadProductData(widget.product!);
     }
     _productNameController.addListener(_onFormChanged);
     _priceController.addListener(_onFormChanged);
@@ -81,8 +75,20 @@ class _AddProductScreenState extends State<AddProductScreen> {
     });
   }
 
+  void _loadProductData(Product product) {
+    _initialProduct = product.copyWith();
+    _productNameController.text = product.name;
+    _descriptionController.text = product.description ?? '';
+    _priceController.text = product.price.toString();
+    _salePriceController.text = product.salePrice?.toString() ?? '';
+    _stockController.text = product.stock?.toString() ?? '';
+    _images.clear();
+    _images.addAll(product.images.map((path) => XFile(path)));
+    setState(() {});
+  }
+
   bool _isFormModified() {
-    if (widget.product == null) {
+    if (_initialProduct == null) {
       return _productNameController.text.isNotEmpty ||
           _priceController.text.isNotEmpty ||
           _salePriceController.text.isNotEmpty ||
@@ -148,7 +154,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   bool _saveDraft() {
   final productProvider = Provider.of<ProductProvider>(context, listen: false);
 
-  if (productProvider.drafts.length >= 5 && (widget.product == null || !widget.product!.isDraft)) {
+  if (productProvider.drafts.length >= 5 && (_initialProduct == null || !_initialProduct!.isDraft)) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -170,7 +176,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     final priceValue = double.tryParse(_priceController.text) ?? 0.0;
 
     final draftProduct = Product(
-      id: widget.product?.id ?? const Uuid().v4(),
+      id: _initialProduct?.id ?? const Uuid().v4(),
       name: _productNameController.text,
       description: _descriptionController.text,
       price: priceValue,
@@ -190,8 +196,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return true;
   }
 
-  void _showDraftsPopup() {
-    showGeneralDialog(
+  void _showDraftsPopup() async {
+    final selectedDraft = await showGeneralDialog<Product>(
       context: context,
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
@@ -220,7 +226,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
         );
       },
     );
+
+    if (selectedDraft != null && mounted) {
+      _loadProductData(selectedDraft);
+    }
   }
+
 
   void _attemptSave() {
     if (_formKey.currentState!.validate()) {
@@ -228,10 +239,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
       final salePriceValue = double.tryParse(_salePriceController.text);
       final navigator = Navigator.of(context);
 
-      if (widget.product == null || widget.product!.isDraft) {
+      if (_initialProduct == null || _initialProduct!.isDraft) {
         // Add new product or update from draft
         final newProduct = Product(
-          id: widget.product?.id ?? const Uuid().v4(),
+          id: _initialProduct?.id ?? const Uuid().v4(),
           name: _productNameController.text,
           description: _descriptionController.text,
           price: double.parse(_priceController.text),
@@ -248,7 +259,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       } else {
         // Update existing product
         final updatedProduct = Product(
-          id: widget.product!.id,
+          id: _initialProduct!.id,
           name: _productNameController.text,
           description: _descriptionController.text,
           price: double.parse(_priceController.text),
@@ -316,7 +327,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             ),
             TextButton(
               onPressed: () {
-                productProvider.deleteProduct(widget.product!.id);
+                productProvider.deleteProduct(_initialProduct!.id);
                 navigator.pop();
                 if (mounted) {
                     navigator.pop();
@@ -336,8 +347,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     final titleTextStyle = Theme.of(context).textTheme.titleLarge;
-    final isEditing = widget.product != null && !widget.product!.isDraft;
-    final isDraft = widget.product != null && widget.product!.isDraft;
+    final isEditing = _initialProduct != null && !_initialProduct!.isDraft;
+    final isDraft = _initialProduct != null && _initialProduct!.isDraft;
 
     return PopScope(
       canPop: !_isFormModified(),

@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/providers/product_provider.dart';
 import 'package:myapp/features/add_product/models/product_model.dart';
-import 'package:myapp/features/add_product/screens/add_product_screen.dart';
 
 class DraftsPopup extends StatelessWidget {
   const DraftsPopup({super.key});
@@ -34,7 +33,7 @@ class DraftsPopup extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 32.0),
               child: Center(
                 child: Text(
-                  'You don’t have any drafts yet. Save up to 5 drafts to finish later',
+                  'You don’t have any drafts yet',
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -73,12 +72,8 @@ class DraftsPopup extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(12.0),
         onTap: () {
-          Navigator.of(context).pop(); // Close the popup first
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => AddProductScreen(product: product),
-            ),
-          );
+          // Pop the dialog and return the selected product
+          Navigator.of(context).pop(product);
         },
         child: Padding(
           padding: const EdgeInsets.all(12.0),
