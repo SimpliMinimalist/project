@@ -36,3 +36,6 @@ This is a Flutter application designed for managing products. It allows users to
     - Corrected a typo in `AutovalidateMode`.
 - **Navigation Error Resolution**: Refactored the draft loading mechanism to prevent a navigator lock error by loading draft data directly into the existing `AddProductScreen` state.
 - **Improved Discard Dialog**: When editing a published product, the exit confirmation dialog no longer offers to "Save as Draft." It now simply asks the user to confirm if they want to discard their changes, providing a more intuitive workflow for live products.
+- **Code Quality and Best Practices**:
+  - Replaced the deprecated `withOpacity` with the recommended `withAlpha` to avoid precision loss.
+  - Resolved a `use_build_context_synchronously` warning by ensuring the `BuildContext` is not used across asynchronous gaps.

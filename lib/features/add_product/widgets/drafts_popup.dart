@@ -74,7 +74,7 @@ class _DraftsPopupState extends State<DraftsPopup> {
         ? DateFormat('d MMM, h:mm a').format(product.savedAt!)
         : 'No date';
 
-    final tileColor = isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : Colors.white;
+    final tileColor = isSelected ? Theme.of(context).primaryColor.withAlpha(25) : Colors.white;
 
     return Material(
       color: tileColor,
@@ -83,11 +83,12 @@ class _DraftsPopupState extends State<DraftsPopup> {
         borderRadius: BorderRadius.circular(12.0),
         onTap: () {
           final productProvider = Provider.of<ProductProvider>(context, listen: false);
+          final navigator = Navigator.of(context);
           productProvider.setSelectedDraftId(product.id);
 
           Future.delayed(const Duration(milliseconds: 250), () {
             if (mounted) {
-              Navigator.of(context).pop(product);
+              navigator.pop(product);
             }
           });
         },
