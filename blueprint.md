@@ -34,7 +34,4 @@ This is a Flutter application designed for managing products. It allows users to
     - Correctly implemented the dialog to show when the draft limit is reached.
     - Fixed the draft pop-up appearing under the status bar by correctly using `SafeArea`.
     - Corrected a typo in `AutovalidateMode`.
-
-## Current Task: Commit and Push Changes
-
-The current task is to commit and push the recent fixes for the draft functionality and UI, including the `SafeArea` correction and the `AutovalidateMode` typo fix.
+- **Navigation Error Resolution**: Refactored the draft loading mechanism to prevent a navigator lock error by loading draft data directly into the existing `AddProductScreen` state.
