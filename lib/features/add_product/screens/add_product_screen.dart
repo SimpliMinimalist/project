@@ -135,15 +135,36 @@ class _AddProductScreenState extends State<AddProductScreen> {
     if (!mounted) return;
 
     if (result == 'save') {
-      _saveDraft();
-      Navigator.of(context).pop();
+      final bool didSave = _saveDraft();
+      if (didSave) {
+        Navigator.of(context).pop();
+      }
     } else if (result == 'discard') {
       Navigator.of(context).pop();
     }
   }
 
 
-  void _saveDraft() {
+  bool _saveDraft() {
+  final productProvider = Provider.of<ProductProvider>(context, listen: false);
+
+  if (productProvider.drafts.length >= 5 && (widget.product == null || !widget.product!.isDraft)) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Drafts Limit Reached'),
+        content: const Text('You can only save up to 5 drafts. Please delete an existing draft to save a new one.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    return false;
+  }
+
     final stockValue = int.tryParse(_stockController.text);
     final salePriceValue = double.tryParse(_salePriceController.text);
     final priceValue = double.tryParse(_priceController.text) ?? 0.0;
@@ -159,13 +180,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
       isDraft: true,
     );
 
-    Provider.of<ProductProvider>(context, listen: false).saveDraft(draftProduct);
+    productProvider.saveDraft(draftProduct);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Product saved as draft!')),
       );
     }
+    return true;
   }
 
   void _showDraftsPopup() {
