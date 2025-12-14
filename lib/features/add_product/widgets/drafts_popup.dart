@@ -14,68 +14,49 @@ class DraftsPopup extends StatelessWidget {
   Widget build(BuildContext context) {
     final draftProducts = Provider.of<ProductProvider>(context).drafts;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20.0),
-              bottomRight: Radius.circular(20.0),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 10.0,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          child: SafeArea(
-            bottom: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: Text(
-                    'Drafts',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-                if (draftProducts.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 24.0, top: 8.0),
-                    child: Center(
-                      child: Text('No draft products found.'),
-                    ),
-                  )
-                else
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height * 0.4,
-                    ),
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      itemCount: draftProducts.length,
-                      padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 8.0),
-                      itemBuilder: (context, index) {
-                        final product = draftProducts[index];
-                        return _buildDraftTile(context, product);
-                      },
-                    ),
-                  ),
-                if (draftProducts.isNotEmpty) const SizedBox(height: 8.0)
-              ],
-            ),
-          ),
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+      backgroundColor: const Color(0xFFF5F5F5),
+      insetPadding: const EdgeInsets.all(16.0), // Padding from screen edges
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.7,
         ),
-      ],
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Text(
+                'Drafts',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+            if (draftProducts.isEmpty)
+              const Expanded(
+                child: Center(
+                  child: Text('No draft products found.'),
+                ),
+              )
+            else
+              Flexible(
+                child: ListView.separated(
+                  itemCount: draftProducts.length,
+                  padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 8.0),
+                  itemBuilder: (context, index) {
+                    final product = draftProducts[index];
+                    return _buildDraftTile(context, product);
+                  },
+                ),
+              ),
+            if (draftProducts.isNotEmpty) const SizedBox(height: 8.0)
+          ],
+        ),
+      ),
     );
   }
 
