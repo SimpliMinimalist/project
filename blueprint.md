@@ -41,3 +41,4 @@ This is a Flutter application designed for managing products. It allows users to
   - Resolved a `use_build_context_synchronously` warning by ensuring the `BuildContext` is not used across asynchronous gaps.
 - **Image Validation Fix**: Fixed a bug where the image validation message would not disappear after an image was selected. This was resolved by using a `GlobalKey` to manually trigger validation on the image `FormField`.
 - **Draft Price Field Fix**: Fixed a bug where a draft saved without a price would display "0.0" when re-edited. The price field now correctly remains empty for drafts until a price is entered.
+- **Smarter Draft Dialog**: The "Save changes" dialog is now context-aware. When editing an existing draft, it correctly shows a "Save" button to update the current draft, instead of the confusing "Save as Draft" option.

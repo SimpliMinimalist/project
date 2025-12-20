@@ -121,6 +121,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         salePrice: double.tryParse(_salePriceController.text),
         stock: int.tryParse(_stockController.text),
         images: _images.map((image) => image.path).toList(),
+        isDraft: _initialProduct!.isDraft,
       );
       return !_initialProduct!.equals(currentProduct);
     }
@@ -133,27 +134,34 @@ class _AddProductScreenState extends State<AddProductScreen> {
       return;
     }
 
-    final isEditingPublished = _initialProduct != null && !_initialProduct!.isDraft;
+    final isEditingDraft = _initialProduct != null && _initialProduct!.isDraft;
+    final isNewProduct = _initialProduct == null;
 
     final result = await showDialog<String>(
       context: context,
       builder: (context) {
-        if (isEditingPublished) {
+        if (isEditingDraft) {
+          // Editing an existing draft
           return AlertDialog(
-            title: const Text('Discard changes?'),
-            content: const Text('You have unsaved changes. Are you sure you want to discard them?'),
+            title: const Text('Save changes?'),
+            content: const Text('Do you want to save the changes to this draft?'),
             actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop('discard'),
+                child: const Text('Discard'),
+              ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop('continue'),
                 child: const Text('Continue editing'),
               ),
               TextButton(
-                onPressed: () => Navigator.of(context).pop('discard'),
-                child: const Text('Discard'),
+                onPressed: () => Navigator.of(context).pop('save'),
+                child: const Text('Save'),
               ),
             ],
           );
-        } else {
+        } else if (isNewProduct) {
+          // Creating a new product
           return AlertDialog(
             title: const Text('Save changes?'),
             content: const Text('Do you want to save this product as a draft?'),
@@ -169,6 +177,22 @@ class _AddProductScreenState extends State<AddProductScreen> {
               TextButton(
                 onPressed: () => Navigator.of(context).pop('save'),
                 child: const Text('Save as Draft'),
+              ),
+            ],
+          );
+        } else {
+          // Editing a published product
+          return AlertDialog(
+            title: const Text('Discard changes?'),
+            content: const Text('You have unsaved changes. Are you sure you want to discard them?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop('continue'),
+                child: const Text('Continue editing'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop('discard'),
+                child: const Text('Discard'),
               ),
             ],
           );
