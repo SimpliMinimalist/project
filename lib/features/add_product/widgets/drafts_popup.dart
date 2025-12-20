@@ -7,8 +7,7 @@ import 'package:myapp/providers/product_provider.dart';
 import 'package:myapp/features/add_product/models/product_model.dart';
 
 class DraftsPopup extends StatefulWidget {
-  final bool isFormModified;
-  const DraftsPopup({super.key, required this.isFormModified});
+  const DraftsPopup({super.key});
 
   @override
   State<DraftsPopup> createState() => _DraftsPopupState();
@@ -83,11 +82,7 @@ class _DraftsPopupState extends State<DraftsPopup> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12.0),
         onTap: () {
-          if (widget.isFormModified) {
-            _showLoadDraftConfirmation(context, product);
-          } else {
-            _loadDraft(context, product);
-          }
+          Navigator.of(context).pop(product);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -160,42 +155,6 @@ class _DraftsPopupState extends State<DraftsPopup> {
           ),
         ),
       ),
-    );
-  }
-
-  void _loadDraft(BuildContext context, Product product) {
-    final productProvider = Provider.of<ProductProvider>(context, listen: false);
-    final navigator = Navigator.of(context);
-    productProvider.setSelectedDraftId(product.id);
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) {
-        navigator.pop(product);
-      }
-    });
-  }
-
-  void _showLoadDraftConfirmation(BuildContext context, Product product) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('Load Draft'),
-          content: const Text('Loading this draft will replace the current content. Are you sure you want to continue?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                _loadDraft(context, product);
-              },
-              child: const Text('Load'),
-            ),
-          ],
-        );
-      },
     );
   }
 

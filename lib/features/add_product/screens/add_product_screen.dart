@@ -260,7 +260,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   void _showDraftsPopup() async {
-    final isFormModified = _isFormModified();
     final selectedDraft = await showGeneralDialog<Product>(
       context: context,
       barrierDismissible: true,
@@ -268,12 +267,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
       barrierColor: Colors.black.withAlpha(102),
       transitionDuration: const Duration(milliseconds: 200),
       pageBuilder: (context, animation, secondaryAnimation) {
-        return SafeArea(
+        return const SafeArea(
           child: Align(
             alignment: Alignment.topCenter,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: DraftsPopup(isFormModified: isFormModified),
+              padding: EdgeInsets.all(16.0),
+              child: DraftsPopup(),
             ),
           ),
         );
@@ -291,9 +290,51 @@ class _AddProductScreenState extends State<AddProductScreen> {
       },
     );
 
-    if (selectedDraft != null && mounted) {
-      _loadProductData(selectedDraft);
+    if (selectedDraft != null) {
+      if (_isFormModified()) {
+        final result = await _showLoadConfirmationDialog();
+        if (result == 'save_draft') {
+          final didSave = _saveDraft();
+          if (didSave && mounted) {
+            _loadProductData(selectedDraft);
+          }
+        } else if (result == 'discard') {
+          if (mounted) {
+            _loadProductData(selectedDraft);
+          }
+        }
+      } else {
+        if (mounted) {
+          _loadProductData(selectedDraft);
+        }
+      }
     }
+  }
+
+  Future<String?> _showLoadConfirmationDialog() {
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('You have unsaved changes'),
+          content: const Text('Do you want to save your current work as a draft before loading the new one?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop('cancel'),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop('discard'),
+              child: const Text('Discard & Load'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop('save_draft'),
+              child: const Text('Save as Draft & Load'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _attemptSave() {
