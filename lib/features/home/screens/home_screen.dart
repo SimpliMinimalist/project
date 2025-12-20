@@ -22,6 +22,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _isFabVisible = true;
+  bool _isSelectionMode = false;
+  final Set<String> _selectedProducts = {};
 
   @override
   void dispose() {
@@ -30,20 +32,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool _handleScrollNotification(ScrollNotification notification) {
-    // React to user scrolling
+    if (_isSelectionMode) return false;
     if (notification is ScrollUpdateNotification) {
       final direction = _scrollController.position.userScrollDirection;
       final scrollDelta = notification.scrollDelta ?? 0;
-      const threshold = 5.0; // Adjust for desired sensitivity
+      const threshold = 5.0;
 
       if (direction == ScrollDirection.reverse && scrollDelta.abs() > threshold) {
-        if (_isFabVisible) _updateFab(false); // Scrolling down, hide FAB
+        if (_isFabVisible) _updateFab(false);
       } else if (direction == ScrollDirection.forward && scrollDelta.abs() > threshold) {
-        if (!_isFabVisible) _updateFab(true); // Scrolling up, show FAB
+        if (!_isFabVisible) _updateFab(true);
       }
-    }
-    // Ensure FAB is visible when scrolling stops at the very top or bottom
-    else if (notification is ScrollEndNotification) {
+    } else if (notification is ScrollEndNotification) {
       if (notification.metrics.atEdge) {
         _updateFab(true);
       }
@@ -59,16 +59,72 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _toggleSelection(String productId) {
+    setState(() {
+      if (_selectedProducts.contains(productId)) {
+        _selectedProducts.remove(productId);
+        if (_selectedProducts.isEmpty) {
+          _isSelectionMode = false;
+        }
+      } else {
+        _selectedProducts.add(productId);
+        _isSelectionMode = true;
+      }
+    });
+  }
+
+  void _deleteSelectedProducts() {
+    final productProvider = Provider.of<ProductProvider>(context, listen: false);
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text('Delete ${_selectedProducts.length} Product(s)'),
+          content: const Text('Are you sure you want to delete the selected products?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                for (String id in _selectedProducts) {
+                  productProvider.deleteProduct(id);
+                }
+                setState(() {
+                  _selectedProducts.clear();
+                  _isSelectionMode = false;
+                });
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final storeProvider = Provider.of<StoreProvider>(context);
     final productProvider = Provider.of<ProductProvider>(context);
 
     Widget leadingContent;
-    if (storeProvider.logo != null) {
+    if (storeProvider.logo != null && !_isSelectionMode) {
       leadingContent = CircleAvatar(
         radius: 18,
         backgroundImage: FileImage(storeProvider.logo!),
+      );
+    } else if (_isSelectionMode) {
+      leadingContent = IconButton(
+        icon: const Icon(Icons.close),
+        onPressed: () {
+          setState(() {
+            _isSelectionMode = false;
+            _selectedProducts.clear();
+          });
+        },
       );
     } else {
       leadingContent = const CircleAvatar(
@@ -85,38 +141,44 @@ class _HomeScreenState extends State<HomeScreen> {
           slivers: [
             SliverAppBar(
               floating: true,
+              pinned: _isSelectionMode, // Pin the app bar in selection mode
               titleSpacing: 0,
-              leading: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: leadingContent,
-              ),
-              title: Text(
-                storeProvider.storeName.isNotEmpty
-                    ? storeProvider.storeName
-                    : 'My Store',
-                style: const TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              actions: [
-                IconButton(
-                  icon: SvgPicture.asset('assets/icons/search.svg',
-                      width: 24, height: 24),
-                  onPressed: () => context.push('/search'),
-                ),
-                IconButton(
-                  icon: SvgPicture.asset('assets/icons/notification.svg',
-                      width: 24, height: 24),
-                  onPressed: () => context.push('/orders'),
-                ),
-                IconButton(
-                  icon: SvgPicture.asset('assets/icons/profile.svg',
-                      width: 24, height: 24),
-                  onPressed: () {
-                  },
-                ),
-              ],
+              leading: leadingContent,
+              title: _isSelectionMode
+                  ? Text('${_selectedProducts.length} selected')
+                  : Text(
+                      storeProvider.storeName.isNotEmpty
+                          ? storeProvider.storeName
+                          : 'My Store',
+                      style: const TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+              actions: _isSelectionMode
+                  ? [
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        onPressed: _deleteSelectedProducts,
+                      ),
+                    ]
+                  : [
+                      IconButton(
+                        icon: SvgPicture.asset('assets/icons/search.svg',
+                            width: 24, height: 24),
+                        onPressed: () => context.push('/search'),
+                      ),
+                      IconButton(
+                        icon: SvgPicture.asset('assets/icons/notification.svg',
+                            width: 24, height: 24),
+                        onPressed: () => context.push('/orders'),
+                      ),
+                      IconButton(
+                        icon: SvgPicture.asset('assets/icons/profile.svg',
+                            width: 24, height: 24),
+                        onPressed: () {},
+                      ),
+                    ],
             ),
             productProvider.products.isEmpty
                 ? const SliverFillRemaining(
@@ -130,16 +192,28 @@ class _HomeScreenState extends State<HomeScreen> {
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final product = productProvider.products[index];
+                          final isSelected = _selectedProducts.contains(product.id);
                           return GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AddProductScreen(product: product),
-                                ),
-                              );
+                              if (_isSelectionMode) {
+                                _toggleSelection(product.id);
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        AddProductScreen(product: product),
+                                  ),
+                                );
+                              }
                             },
-                            child: ProductCard(product: product),
+                            onLongPress: () {
+                              _toggleSelection(product.id);
+                            },
+                            child: ProductCard(
+                              product: product,
+                              isSelected: isSelected,
+                            ),
                           );
                         },
                         childCount: productProvider.products.length,
@@ -154,8 +228,9 @@ class _HomeScreenState extends State<HomeScreen> {
         transitionBuilder: (Widget child, Animation<double> animation) {
           return FadeTransition(opacity: animation, child: child);
         },
-        child:
-            _isFabVisible ? const AddProductFab() : const SizedBox.shrink(),
+        child: _isSelectionMode
+            ? const SizedBox.shrink()
+            : (_isFabVisible ? const AddProductFab() : const SizedBox.shrink()),
       ),
     );
   }

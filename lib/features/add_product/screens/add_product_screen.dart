@@ -414,41 +414,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _imageFieldKey.currentState?.validate();
   }
 
-  void _showDeleteConfirmationDialog() {
-    final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    final productProvider = Provider.of<ProductProvider>(context, listen: false);
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Delete Product'),
-          content: const Text('Are you sure you want to delete this product?'),
-          actions: [
-            TextButton(
-              onPressed: () => navigator.pop(),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                productProvider.deleteProduct(_initialProduct!.id);
-                navigator.pop();
-                if (mounted) {
-                  navigator.pop();
-                  messenger.showSnackBar(
-                    const SnackBar(content: Text('Product deleted successfully!')),
-                  );
-                }
-              },
-              child: const Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final titleTextStyle = Theme.of(context).textTheme.titleLarge;
@@ -601,19 +566,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                if (isEditing)
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _showDeleteConfirmationDialog,
-                      style: ElevatedButton.styleFrom(
-                        elevation: 0,
-                        backgroundColor: Colors.grey.shade300,
-                        foregroundColor: Colors.black87,
-                      ),
-                      child: const Text('Delete'),
-                    ),
-                  ),
-                if (isEditing) const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _attemptSave,

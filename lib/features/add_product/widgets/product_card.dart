@@ -5,35 +5,63 @@ import 'package:myapp/features/add_product/models/product_model.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
+  final bool isSelected;
 
-  const ProductCard({super.key, required this.product});
+  const ProductCard({
+    super.key,
+    required this.product,
+    this.isSelected = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final Color cardColor = isSelected
+        ? Theme.of(context).primaryColor.withAlpha(25) // 10% opacity
+        : Colors.white;
+
     return Card(
       elevation: 0.0,
-      color: Colors.white,
+      color: cardColor,
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Row(
           children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.0),
-                color: Colors.grey.shade300,
-              ),
-              child: product.images.isNotEmpty
-                  ? ClipRRect(
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.0),
+                    color: Colors.grey.shade300,
+                  ),
+                  child: product.images.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.file(
+                            File(product.images.first),
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : const Icon(Icons.image, size: 40, color: Colors.grey),
+                ),
+                if (isSelected)
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha(128), // 50% opacity
                       borderRadius: BorderRadius.circular(8.0),
-                      child: Image.file(
-                        File(product.images.first),
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : const Icon(Icons.image, size: 40, color: Colors.grey),
+                    ),
+                    child: const Icon(
+                      Icons.check_circle,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(width: 16),
             Expanded(
