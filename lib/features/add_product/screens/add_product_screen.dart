@@ -260,6 +260,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   void _showDraftsPopup() async {
+    final isFormModified = _isFormModified();
     final selectedDraft = await showGeneralDialog<Product>(
       context: context,
       barrierDismissible: true,
@@ -272,7 +273,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             alignment: Alignment.topCenter,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: const DraftsPopup(),
+              child: DraftsPopup(isFormModified: isFormModified),
             ),
           ),
         );

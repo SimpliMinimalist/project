@@ -7,7 +7,8 @@ import 'package:myapp/providers/product_provider.dart';
 import 'package:myapp/features/add_product/models/product_model.dart';
 
 class DraftsPopup extends StatefulWidget {
-  const DraftsPopup({super.key});
+  final bool isFormModified;
+  const DraftsPopup({super.key, required this.isFormModified});
 
   @override
   State<DraftsPopup> createState() => _DraftsPopupState();
@@ -82,7 +83,11 @@ class _DraftsPopupState extends State<DraftsPopup> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12.0),
         onTap: () {
-          _showLoadDraftConfirmation(context, product);
+          if (widget.isFormModified) {
+            _showLoadDraftConfirmation(context, product);
+          } else {
+            _loadDraft(context, product);
+          }
         },
         child: Container(
           decoration: BoxDecoration(
@@ -158,6 +163,17 @@ class _DraftsPopupState extends State<DraftsPopup> {
     );
   }
 
+  void _loadDraft(BuildContext context, Product product) {
+    final productProvider = Provider.of<ProductProvider>(context, listen: false);
+    final navigator = Navigator.of(context);
+    productProvider.setSelectedDraftId(product.id);
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        navigator.pop(product);
+      }
+    });
+  }
+
   void _showLoadDraftConfirmation(BuildContext context, Product product) {
     showDialog(
       context: context,
@@ -172,15 +188,8 @@ class _DraftsPopupState extends State<DraftsPopup> {
             ),
             TextButton(
               onPressed: () {
-                final productProvider = Provider.of<ProductProvider>(context, listen: false);
-                final navigator = Navigator.of(context);
-                productProvider.setSelectedDraftId(product.id);
                 Navigator.of(dialogContext).pop();
-                Future.delayed(const Duration(milliseconds: 100), () {
-                  if (mounted) {
-                    navigator.pop(product);
-                  }
-                });
+                _loadDraft(context, product);
               },
               child: const Text('Load'),
             ),
