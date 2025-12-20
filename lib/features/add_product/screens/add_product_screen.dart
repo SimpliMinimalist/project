@@ -47,7 +47,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     if (widget.product != null) {
       _loadProductData(widget.product!);
     } else {
-       // When creating a new product, clear any lingering selection
+      // When creating a new product, clear any lingering selection
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Provider.of<ProductProvider>(context, listen: false).clearSelection();
       });
@@ -82,12 +82,18 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _initialProduct = product.copyWith();
     _productNameController.text = product.name;
     _descriptionController.text = product.description ?? '';
-    _priceController.text = product.price.toString();
+
+    if (product.isDraft && product.price == 0.0) {
+      _priceController.text = '';
+    } else {
+      _priceController.text = product.price.toString();
+    }
+
     _salePriceController.text = product.salePrice?.toString() ?? '';
     _stockController.text = product.stock?.toString() ?? '';
     _images.clear();
     _images.addAll(product.images.map((path) => XFile(path)));
-    
+
     // Also update the provider with the loaded draft's ID
     Provider.of<ProductProvider>(context, listen: false).setSelectedDraftId(product.id);
 
@@ -184,24 +190,25 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   bool _saveDraft() {
-  final productProvider = Provider.of<ProductProvider>(context, listen: false);
+    final productProvider = Provider.of<ProductProvider>(context, listen: false);
 
-  if (productProvider.drafts.length >= 5 && (_initialProduct == null || !_initialProduct!.isDraft)) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Drafts Limit Reached'),
-        content: const Text('You can only save up to 5 drafts. Please delete an existing draft to save a new one.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-    return false;
-  }
+    if (productProvider.drafts.length >= 5 &&
+        (_initialProduct == null || !_initialProduct!.isDraft)) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Drafts Limit Reached'),
+          content: const Text('You can only save up to 5 drafts. Please delete an existing draft to save a new one.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return false;
+    }
 
     final stockValue = int.tryParse(_stockController.text);
     final salePriceValue = double.tryParse(_salePriceController.text);
@@ -263,7 +270,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       _loadProductData(selectedDraft);
     }
   }
-
 
   void _attemptSave() {
     if (_formKey.currentState!.validate()) {
@@ -363,10 +369,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 productProvider.deleteProduct(_initialProduct!.id);
                 navigator.pop();
                 if (mounted) {
-                    navigator.pop();
-                    messenger.showSnackBar(
+                  navigator.pop();
+                  messenger.showSnackBar(
                     const SnackBar(content: Text('Product deleted successfully!')),
-                    );
+                  );
                 }
               },
               child: const Text('Delete'),
@@ -495,14 +501,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     }
                     return null;
                   },
-                   autovalidateMode: AutovalidateMode.onUserInteraction,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                 ),
                 const SizedBox(height: 16),
                 ClearableTextFormField(
                   controller: _stockController,
                   labelText: 'Stock',
                   keyboardType: TextInputType.number,
-                   validator: (value) {
+                  validator: (value) {
                     if (value != null &&
                         value.isNotEmpty &&
                         int.tryParse(value) == null) {
@@ -510,7 +516,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     }
                     return null;
                   },
-                   autovalidateMode: AutovalidateMode.onUserInteraction,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                 ),
                 const SizedBox(height: 16),
                 ClearableTextFormField(
@@ -540,8 +546,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       child: const Text('Delete'),
                     ),
                   ),
-                if (isEditing || isDraft)
-                  const SizedBox(width: 16),
+                if (isEditing || isDraft) const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _attemptSave,

@@ -40,3 +40,4 @@ This is a Flutter application designed for managing products. It allows users to
   - Replaced the deprecated `withOpacity` with the recommended `withAlpha` to avoid precision loss.
   - Resolved a `use_build_context_synchronously` warning by ensuring the `BuildContext` is not used across asynchronous gaps.
 - **Image Validation Fix**: Fixed a bug where the image validation message would not disappear after an image was selected. This was resolved by using a `GlobalKey` to manually trigger validation on the image `FormField`.
+- **Draft Price Field Fix**: Fixed a bug where a draft saved without a price would display "0.0" when re-edited. The price field now correctly remains empty for drafts until a price is entered.
