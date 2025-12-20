@@ -10,6 +10,7 @@ class Product {
   final double? salePrice;
   final int? stock;
   final List<String> images;
+  final String? category;
   final bool isDraft;
   final DateTime? savedAt;
 
@@ -20,7 +21,8 @@ class Product {
     required this.price,
     this.salePrice,
     this.stock,
-    required this.images,
+    this.images = const [],
+    this.category,
     this.isDraft = false,
     this.savedAt,
   });
@@ -33,6 +35,7 @@ class Product {
     double? salePrice,
     int? stock,
     List<String>? images,
+    String? category,
     bool? isDraft,
     DateTime? savedAt,
   }) {
@@ -44,6 +47,7 @@ class Product {
       salePrice: salePrice ?? this.salePrice,
       stock: stock ?? this.stock,
       images: images ?? this.images,
+      category: category ?? this.category,
       isDraft: isDraft ?? this.isDraft,
       savedAt: savedAt ?? this.savedAt,
     );

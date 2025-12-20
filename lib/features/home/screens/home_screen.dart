@@ -4,7 +4,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:myapp/features/add_product/models/product_model.dart';
 import 'package:myapp/features/add_product/screens/add_product_screen.dart';
+import 'package:myapp/features/home/widgets/add_category_bottom_sheet.dart';
+import 'package:myapp/providers/category_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/product_provider.dart';
@@ -109,6 +112,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final storeProvider = Provider.of<StoreProvider>(context);
     final productProvider = Provider.of<ProductProvider>(context);
+    final categoryProvider = Provider.of<CategoryProvider>(context);
+
+    final List<Product> filteredProducts;
+    if (categoryProvider.selectedCategory == 'All') {
+      filteredProducts = productProvider.products;
+    } else {
+      filteredProducts = productProvider.products
+          .where((p) => p.category == categoryProvider.selectedCategory)
+          .toList();
+    }
 
     Widget leadingContent;
     if (storeProvider.logo != null && !_isSelectionMode) {
@@ -141,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
           slivers: [
             SliverAppBar(
               floating: true,
-              pinned: _isSelectionMode, // Pin the app bar in selection mode
+              pinned: _isSelectionMode,
               titleSpacing: 0,
               leading: leadingContent,
               title: _isSelectionMode
@@ -180,7 +193,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
             ),
-            productProvider.products.isEmpty
+            SliverToBoxAdapter(
+              child: _buildCategoryFilters(),
+            ),
+            filteredProducts.isEmpty
                 ? const SliverFillRemaining(
                     child: Center(
                       child: Text('No products yet. Add one!'),
@@ -191,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
-                          final product = productProvider.products[index];
+                          final product = filteredProducts[index];
                           final isSelected = _selectedProducts.contains(product.id);
                           return GestureDetector(
                             onTap: () {
@@ -216,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           );
                         },
-                        childCount: productProvider.products.length,
+                        childCount: filteredProducts.length,
                       ),
                     ),
                   ),
@@ -232,6 +248,71 @@ class _HomeScreenState extends State<HomeScreen> {
             ? const SizedBox.shrink()
             : (_isFabVisible ? const AddProductFab() : const SizedBox.shrink()),
       ),
+    );
+  }
+
+  Widget _buildCategoryFilters() {
+    return Consumer<CategoryProvider>(
+      builder: (context, categoryProvider, child) {
+        final allCategories = ['All', ...categoryProvider.categories];
+
+        return SizedBox(
+          height: 60,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            itemCount: allCategories.length + 1, // +1 for the add button
+            itemBuilder: (context, index) {
+              if (index == allCategories.length) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: ActionChip(
+                    label: const Icon(Icons.add),
+                    onPressed: () => showAddCategoryBottomSheet(context),
+                    shape: const CircleBorder(),
+                    padding: const EdgeInsets.all(8),
+                  ),
+                );
+              }
+
+              final category = allCategories[index];
+              final isSelected = category == categoryProvider.selectedCategory;
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: ChoiceChip(
+                  label: Text(category),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    if (selected) {
+                      categoryProvider.selectCategory(category);
+                    }
+                  },
+                  backgroundColor: isSelected
+                      ? Theme.of(context).primaryColor.withAlpha(25)
+                      : Colors.grey[200],
+                  selectedColor: Theme.of(context).primaryColor.withAlpha(51),
+                  labelStyle: TextStyle(
+                    color: isSelected
+                        ? Theme.of(context).primaryColor
+                        : Colors.black87,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(
+                      color: isSelected
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey[300]!,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:myapp/features/add_product/models/product_model.dart';
+import 'package:myapp/features/home/widgets/add_category_bottom_sheet.dart';
+import 'package:myapp/providers/category_provider.dart';
 import 'package:myapp/providers/product_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -38,6 +40,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _salePriceController = TextEditingController();
   final _stockController = TextEditingController();
   final _descriptionController = TextEditingController();
+  String? _selectedCategory;
 
   Product? _initialProduct;
 
@@ -93,6 +96,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _stockController.text = product.stock?.toString() ?? '';
     _images.clear();
     _images.addAll(product.images.map((path) => XFile(path)));
+    _selectedCategory = product.category;
 
     // Also update the provider with the loaded draft's ID
     Provider.of<ProductProvider>(context, listen: false).setSelectedDraftId(product.id);
@@ -111,7 +115,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
           _salePriceController.text.isNotEmpty ||
           _stockController.text.isNotEmpty ||
           _descriptionController.text.isNotEmpty ||
-          _images.isNotEmpty;
+          _images.isNotEmpty ||
+          _selectedCategory != null;
     } else {
       final currentProduct = Product(
         id: _initialProduct!.id,
@@ -121,6 +126,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         salePrice: double.tryParse(_salePriceController.text),
         stock: int.tryParse(_stockController.text),
         images: _images.map((image) => image.path).toList(),
+        category: _selectedCategory,
         isDraft: _initialProduct!.isDraft,
       );
       return !_initialProduct!.equals(currentProduct);
@@ -246,6 +252,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       salePrice: salePriceValue,
       stock: stockValue,
       images: _images.map((image) => image.path).toList(),
+      category: _selectedCategory,
       isDraft: true,
     );
 
@@ -353,6 +360,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           salePrice: salePriceValue,
           stock: stockValue,
           images: _images.map((image) => image.path).toList(),
+          category: _selectedCategory,
         );
         productProvider.addProduct(newProduct);
         if (mounted) {
@@ -369,6 +377,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           salePrice: salePriceValue,
           stock: stockValue,
           images: _images.map((image) => image.path).toList(),
+          category: _selectedCategory,
         );
         productProvider.updateProduct(updatedProduct);
         if (mounted) {
@@ -412,6 +421,42 @@ class _AddProductScreenState extends State<AddProductScreen> {
       }
     });
     _imageFieldKey.currentState?.validate();
+  }
+
+  void _showCategoryPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Consumer<CategoryProvider>(
+          builder: (context, categoryProvider, child) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ...categoryProvider.categories.map((category) {
+                  return ListTile(
+                    title: Text(category),
+                    onTap: () {
+                      setState(() {
+                        _selectedCategory = category;
+                      });
+                      Navigator.pop(context);
+                    },
+                  );
+                }),
+                ListTile(
+                  leading: const Icon(Icons.add),
+                  title: const Text('Add New Category'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    showAddCategoryBottomSheet(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -503,6 +548,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                 ),
                 const SizedBox(height: 16),
+                _buildCategorySelector(),
+                const SizedBox(height: 16),
                 ClearableTextFormField(
                   controller: _priceController,
                   labelText: 'Price',
@@ -582,6 +629,25 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategorySelector() {
+    return InkWell(
+      onTap: _showCategoryPicker,
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          labelText: 'Category',
+          border: OutlineInputBorder(),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(_selectedCategory ?? 'Select a category'),
+            const Icon(Icons.arrow_drop_down),
+          ],
         ),
       ),
     );
@@ -741,6 +807,7 @@ extension ProductEquals on Product {
         price == other.price &&
         salePrice == other.salePrice &&
         stock == other.stock &&
+        category == other.category &&
         listEquals.equals(images, other.images);
   }
 }
