@@ -559,7 +559,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                if (isEditing || isDraft)
+                if (isEditing)
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _showDeleteConfirmationDialog,
@@ -571,7 +571,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       child: const Text('Delete'),
                     ),
                   ),
-                if (isEditing || isDraft) const SizedBox(width: 16),
+                if (isEditing) const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _attemptSave,
@@ -580,7 +580,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       backgroundColor: Theme.of(context).primaryColor,
                       foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     ),
-                    child: Text(isEditing ? 'Update Product' : 'Add Product'),
+                    child: Text(isEditing
+                        ? 'Update Product'
+                        : (isDraft ? 'Add Product' : 'Add Product')), // Changed label for drafts
                   ),
                 ),
               ],
