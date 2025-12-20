@@ -28,6 +28,7 @@ class AddProductScreen extends StatefulWidget {
 
 class _AddProductScreenState extends State<AddProductScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _imageFieldKey = GlobalKey<FormFieldState<List<XFile>>>();
   final ImagePicker _picker = ImagePicker();
   final List<XFile> _images = [];
   int _activePage = 0;
@@ -91,6 +92,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
     Provider.of<ProductProvider>(context, listen: false).setSelectedDraftId(product.id);
 
     setState(() {});
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _formKey.currentState?.validate();
+    });
   }
 
   bool _isFormModified() {
@@ -323,6 +328,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       setState(() {
         _images.addAll(pickedFiles);
       });
+      _imageFieldKey.currentState?.validate();
     }
   }
 
@@ -333,6 +339,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         _activePage = _images.length - 1;
       }
     });
+    _imageFieldKey.currentState?.validate();
   }
 
   void _showDeleteConfirmationDialog() {
@@ -414,6 +421,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 FormField<List<XFile>>(
+                  key: _imageFieldKey,
+                  initialValue: _images,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) {
                     if (_images.isEmpty) {
