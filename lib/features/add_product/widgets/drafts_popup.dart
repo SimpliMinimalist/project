@@ -82,15 +82,7 @@ class _DraftsPopupState extends State<DraftsPopup> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12.0),
         onTap: () {
-          final productProvider = Provider.of<ProductProvider>(context, listen: false);
-          final navigator = Navigator.of(context);
-          productProvider.setSelectedDraftId(product.id);
-
-          Future.delayed(const Duration(milliseconds: 250), () {
-            if (mounted) {
-              navigator.pop(product);
-            }
-          });
+          _showLoadDraftConfirmation(context, product);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -163,6 +155,38 @@ class _DraftsPopupState extends State<DraftsPopup> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showLoadDraftConfirmation(BuildContext context, Product product) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Load Draft'),
+          content: const Text('Loading this draft will replace the current content. Are you sure you want to continue?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final productProvider = Provider.of<ProductProvider>(context, listen: false);
+                final navigator = Navigator.of(context);
+                productProvider.setSelectedDraftId(product.id);
+                Navigator.of(dialogContext).pop();
+                Future.delayed(const Duration(milliseconds: 100), () {
+                  if (mounted) {
+                    navigator.pop(product);
+                  }
+                });
+              },
+              child: const Text('Load'),
+            ),
+          ],
+        );
+      },
     );
   }
 
