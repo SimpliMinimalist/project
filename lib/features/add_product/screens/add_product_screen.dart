@@ -436,10 +436,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
             ),
           ),
           actions: [
-            IconButton(
-              icon: SvgPicture.asset('assets/icons/draft_products.svg', width: 24, height: 24),
-              onPressed: _showDraftsPopup,
-            ),
+            if (!isEditing) // Show drafts icon only when not editing a published product
+              IconButton(
+                icon: SvgPicture.asset('assets/icons/draft_products.svg', width: 24, height: 24),
+                onPressed: _showDraftsPopup,
+              ),
           ],
           centerTitle: true,
         ),

@@ -42,3 +42,4 @@ This is a Flutter application designed for managing products. It allows users to
 - **Image Validation Fix**: Fixed a bug where the image validation message would not disappear after an image was selected. This was resolved by using a `GlobalKey` to manually trigger validation on the image `FormField`.
 - **Draft Price Field Fix**: Fixed a bug where a draft saved without a price would display "0.0" when re-edited. The price field now correctly remains empty for drafts until a price is entered.
 - **Smarter Draft Dialog**: The "Save changes" dialog is now context-aware. When editing an existing draft, it correctly shows a "Save" button to update the current draft, instead of the confusing "Save as Draft" option.
+- **Contextual Draft Icon**: The drafts icon in the app bar is now only visible when creating a new product or editing an existing draft. It is correctly hidden when editing a published product, reducing UI clutter.
