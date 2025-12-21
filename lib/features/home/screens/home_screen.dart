@@ -289,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
               return Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: ChoiceChip(
-                  label: Text('$category ($productCount)'),
+                  label: Text('$category $productCount'),
                   selected: isSelected,
                   showCheckmark: false,
                   onSelected: (selected) {
@@ -302,6 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       : Colors.grey[200],
                   selectedColor: Theme.of(context).primaryColor.withAlpha(51),
                   labelStyle: TextStyle(
+                    fontSize: 14,
                     color: isSelected
                         ? Theme.of(context).primaryColor
                         : Colors.black87,
