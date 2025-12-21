@@ -75,6 +75,19 @@ class ProductCard extends StatelessWidget {
                         ),
                   ),
                   const SizedBox(height: 4),
+                  if (product.categories.isNotEmpty)
+                    Text(
+                      product.categories.first,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    )
+                  else
+                    Text(
+                      'Category not assigned',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey,
+                          ),
+                    ),
+                  const SizedBox(height: 4),
                   Text(
                     '₹${product.price.toStringAsFixed(2)}',
                     style: Theme.of(context).textTheme.bodyLarge,
