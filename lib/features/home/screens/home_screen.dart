@@ -252,6 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCategoryFilters() {
+    final productProvider = Provider.of<ProductProvider>(context);
     return Consumer<CategoryProvider>(
       builder: (context, categoryProvider, child) {
         final allCategories = ['All', ...categoryProvider.categories];
@@ -279,11 +280,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
               final category = allCategories[index];
               final isSelected = category == categoryProvider.selectedCategory;
+              final productCount = category == 'All'
+                  ? productProvider.products.length
+                  : productProvider.products
+                      .where((p) => p.categories.contains(category))
+                      .length;
 
               return Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: ChoiceChip(
-                  label: Text(category),
+                  label: Text('$category ($productCount)'),
                   selected: isSelected,
                   showCheckmark: false,
                   onSelected: (selected) {
