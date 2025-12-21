@@ -451,6 +451,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     showAddCategoryBottomSheet(context);
                   },
                 ),
+                const SizedBox(height: 25),
               ],
             );
           },
