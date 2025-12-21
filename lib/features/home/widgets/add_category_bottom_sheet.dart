@@ -27,6 +27,9 @@ void showAddCategoryBottomSheet(BuildContext context) {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
               onPressed: () {
                 final categoryName = categoryController.text.trim();
                 if (categoryName.isNotEmpty) {
@@ -37,6 +40,7 @@ void showAddCategoryBottomSheet(BuildContext context) {
               },
               child: const Text('Add Category'),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       );

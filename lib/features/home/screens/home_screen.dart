@@ -269,7 +269,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: ActionChip(
                     label: const Icon(Icons.add),
                     onPressed: () => showAddCategoryBottomSheet(context),
-                    shape: const CircleBorder(),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
+                    ),
                     padding: const EdgeInsets.all(8),
                   ),
                 );
