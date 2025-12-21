@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
       filteredProducts = productProvider.products;
     } else {
       filteredProducts = productProvider.products
-          .where((p) => p.category == categoryProvider.selectedCategory)
+          .where((p) => p.categories.contains(categoryProvider.selectedCategory))
           .toList();
     }
 

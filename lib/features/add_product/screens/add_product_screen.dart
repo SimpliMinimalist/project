@@ -40,7 +40,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _salePriceController = TextEditingController();
   final _stockController = TextEditingController();
   final _descriptionController = TextEditingController();
-  String? _selectedCategory;
+  List<String> _selectedCategories = [];
 
   Product? _initialProduct;
 
@@ -96,7 +96,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _stockController.text = product.stock?.toString() ?? '';
     _images.clear();
     _images.addAll(product.images.map((path) => XFile(path)));
-    _selectedCategory = product.category;
+    _selectedCategories = product.categories;
 
     // Also update the provider with the loaded draft's ID
     Provider.of<ProductProvider>(context, listen: false).setSelectedDraftId(product.id);
@@ -116,7 +116,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           _stockController.text.isNotEmpty ||
           _descriptionController.text.isNotEmpty ||
           _images.isNotEmpty ||
-          _selectedCategory != null;
+          _selectedCategories.isNotEmpty;
     } else {
       final currentProduct = Product(
         id: _initialProduct!.id,
@@ -126,7 +126,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         salePrice: double.tryParse(_salePriceController.text),
         stock: int.tryParse(_stockController.text),
         images: _images.map((image) => image.path).toList(),
-        category: _selectedCategory,
+        categories: _selectedCategories,
         isDraft: _initialProduct!.isDraft,
       );
       return !_initialProduct!.equals(currentProduct);
@@ -252,7 +252,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       salePrice: salePriceValue,
       stock: stockValue,
       images: _images.map((image) => image.path).toList(),
-      category: _selectedCategory,
+      categories: _selectedCategories,
       isDraft: true,
     );
 
@@ -360,7 +360,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           salePrice: salePriceValue,
           stock: stockValue,
           images: _images.map((image) => image.path).toList(),
-          category: _selectedCategory,
+          categories: _selectedCategories,
         );
         productProvider.addProduct(newProduct);
         if (mounted) {
@@ -377,7 +377,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           salePrice: salePriceValue,
           stock: stockValue,
           images: _images.map((image) => image.path).toList(),
-          category: _selectedCategory,
+          categories: _selectedCategories,
         );
         productProvider.updateProduct(updatedProduct);
         if (mounted) {
@@ -426,33 +426,47 @@ class _AddProductScreenState extends State<AddProductScreen> {
   void _showCategoryPicker() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
-        return Consumer<CategoryProvider>(
-          builder: (context, categoryProvider, child) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ...categoryProvider.categories.map((category) {
-                  return ListTile(
-                    title: Text(category),
-                    onTap: () {
-                      setState(() {
-                        _selectedCategory = category;
-                      });
-                      Navigator.pop(context);
-                    },
-                  );
-                }),
-                ListTile(
-                  leading: const Icon(Icons.add),
-                  title: const Text('Add New Category'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    showAddCategoryBottomSheet(context);
-                  },
-                ),
-                const SizedBox(height: 25),
-              ],
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Consumer<CategoryProvider>(
+              builder: (context, categoryProvider, child) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ...categoryProvider.categories.map((category) {
+                        return CheckboxListTile(
+                          title: Text(category),
+                          value: _selectedCategories.contains(category),
+                          onChanged: (bool? value) {
+                            setState(() {
+                              if (value == true) {
+                                _selectedCategories.add(category);
+                              } else {
+                                _selectedCategories.remove(category);
+                              }
+                            });
+                          },
+                        );
+                      }),
+                      ListTile(
+                        leading: const Icon(Icons.add),
+                        title: const Text('Add New Category'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          showAddCategoryBottomSheet(context);
+                        },
+                      ),
+                      const SizedBox(height: 25),
+                    ],
+                  ),
+                );
+              },
             );
           },
         );
@@ -646,7 +660,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(_selectedCategory ?? 'Select a category'),
+            Text(_selectedCategories.isEmpty
+                ? 'Select categories'
+                : _selectedCategories.join(', ')),
             const Icon(Icons.arrow_drop_down),
           ],
         ),
@@ -808,7 +824,7 @@ extension ProductEquals on Product {
         price == other.price &&
         salePrice == other.salePrice &&
         stock == other.stock &&
-        category == other.category &&
+        listEquals.equals(categories, other.categories) &&
         listEquals.equals(images, other.images);
   }
 }
