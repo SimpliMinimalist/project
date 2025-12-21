@@ -285,6 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: ChoiceChip(
                   label: Text(category),
                   selected: isSelected,
+                  showCheckmark: false,
                   onSelected: (selected) {
                     if (selected) {
                       categoryProvider.selectCategory(category);
