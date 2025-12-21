@@ -194,7 +194,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
             ),
             SliverToBoxAdapter(
-              child: _buildCategoryFilters(),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 4.0),
+                child: _buildCategoryFilters(),
+              ),
             ),
             filteredProducts.isEmpty
                 ? const SliverFillRemaining(
