@@ -279,13 +279,17 @@ class _HomeScreenState extends State<HomeScreen> {
               if (index == allCategories.length) {
                 return Padding(
                   padding: const EdgeInsets.only(left: 8.0),
-                  child: ActionChip(
-                    label: const Icon(Icons.add),
-                    onPressed: () => showAddCategoryBottomSheet(context),
+                  child: ChoiceChip(
+                    visualDensity: const VisualDensity(vertical: -2),
+                    label: const Icon(Icons.add, size: 20),
+                    selected: false,
+                    showCheckmark: false,
+                    onSelected: (_) => showAddCategoryBottomSheet(context),
+                    backgroundColor: Colors.grey[200],
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(color: Colors.grey[300]!),
                     ),
-                    padding: const EdgeInsets.all(8),
                   ),
                 );
               }
