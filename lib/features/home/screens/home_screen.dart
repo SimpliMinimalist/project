@@ -257,8 +257,20 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, categoryProvider, child) {
         final allCategories = ['All', ...categoryProvider.categories];
 
+        final selectedStyle = TextStyle(
+          fontSize: 14,
+          color: Theme.of(context).primaryColor,
+          fontWeight: FontWeight.bold,
+        );
+
+        final unselectedStyle = TextStyle(
+          fontSize: 14,
+          color: Colors.black87,
+          fontWeight: FontWeight.w300,
+        );
+
         return SizedBox(
-          height: 60,
+          height: 50,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -289,6 +301,7 @@ class _HomeScreenState extends State<HomeScreen> {
               return Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: ChoiceChip(
+                  visualDensity: const VisualDensity(vertical: -2),
                   label: Text('$category $productCount'),
                   selected: isSelected,
                   showCheckmark: false,
@@ -301,14 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? Theme.of(context).primaryColor.withAlpha(25)
                       : Colors.grey[200],
                   selectedColor: Theme.of(context).primaryColor.withAlpha(51),
-                  labelStyle: TextStyle(
-                    fontSize: 14,
-                    color: isSelected
-                        ? Theme.of(context).primaryColor
-                        : Colors.black87,
-                    fontWeight:
-                        isSelected ? FontWeight.bold : FontWeight.w300,
-                  ),
+                  labelStyle: isSelected ? selectedStyle : unselectedStyle,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                     side: BorderSide(
