@@ -40,13 +40,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _salePriceController = TextEditingController();
   final _stockController = TextEditingController();
   final _descriptionController = TextEditingController();
-  List<String> _selectedCategories = [];
 
   Product? _initialProduct;
+  late Product _editedProduct;
 
   @override
   void initState() {
     super.initState();
+    _initialProduct = widget.product?.copyWith();
+    _editedProduct = widget.product?.copyWith() ??
+        Product(
+          id: const Uuid().v4(),
+          name: '',
+          price: 0.0,
+          images: [],
+          categories: [],
+          isDraft: true,
+        );
+
     if (widget.product != null) {
       _loadProductData(widget.product!);
     } else {
@@ -78,11 +89,21 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   void _onFormChanged() {
-    setState(() {});
+    setState(() {
+      _editedProduct = _editedProduct.copyWith(
+        name: _productNameController.text,
+        description: _descriptionController.text,
+        price: double.tryParse(_priceController.text),
+        salePrice: double.tryParse(_salePriceController.text),
+        stock: int.tryParse(_stockController.text),
+        images: _images.map((image) => image.path).toList(),
+      );
+    });
   }
 
   void _loadProductData(Product product) {
     _initialProduct = product.copyWith();
+    _editedProduct = product.copyWith();
     _productNameController.text = product.name;
     _descriptionController.text = product.description ?? '';
 
@@ -96,7 +117,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _stockController.text = product.stock?.toString() ?? '';
     _images.clear();
     _images.addAll(product.images.map((path) => XFile(path)));
-    _selectedCategories = product.categories;
 
     // Also update the provider with the loaded draft's ID
     Provider.of<ProductProvider>(context, listen: false).setSelectedDraftId(product.id);
@@ -109,28 +129,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   bool _isFormModified() {
-    if (_initialProduct == null) {
-      return _productNameController.text.isNotEmpty ||
-          _priceController.text.isNotEmpty ||
-          _salePriceController.text.isNotEmpty ||
-          _stockController.text.isNotEmpty ||
-          _descriptionController.text.isNotEmpty ||
-          _images.isNotEmpty ||
-          _selectedCategories.isNotEmpty;
-    } else {
-      final currentProduct = Product(
-        id: _initialProduct!.id,
-        name: _productNameController.text,
-        description: _descriptionController.text,
-        price: double.tryParse(_priceController.text) ?? 0.0,
-        salePrice: double.tryParse(_salePriceController.text),
-        stock: int.tryParse(_stockController.text),
-        images: _images.map((image) => image.path).toList(),
-        categories: _selectedCategories,
-        isDraft: _initialProduct!.isDraft,
-      );
-      return !_initialProduct!.equals(currentProduct);
-    }
+    return !(_initialProduct?.equals(_editedProduct) ?? false);
   }
 
   Future<void> _showSaveDraftDialog() async {
@@ -240,21 +239,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       return false;
     }
 
-    final stockValue = int.tryParse(_stockController.text);
-    final salePriceValue = double.tryParse(_salePriceController.text);
-    final priceValue = double.tryParse(_priceController.text) ?? 0.0;
-
-    final draftProduct = Product(
-      id: _initialProduct?.id ?? const Uuid().v4(),
-      name: _productNameController.text,
-      description: _descriptionController.text,
-      price: priceValue,
-      salePrice: salePriceValue,
-      stock: stockValue,
-      images: _images.map((image) => image.path).toList(),
-      categories: _selectedCategories,
-      isDraft: true,
-    );
+    final draftProduct = _editedProduct.copyWith(isDraft: true);
 
     productProvider.saveDraft(draftProduct);
 
@@ -346,40 +331,20 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   void _attemptSave() {
     if (_formKey.currentState!.validate()) {
-      final stockValue = int.tryParse(_stockController.text);
-      final salePriceValue = double.tryParse(_salePriceController.text);
       final navigator = Navigator.of(context);
       final productProvider = Provider.of<ProductProvider>(context, listen: false);
 
+      final productToSave = _editedProduct.copyWith(isDraft: false);
+
       if (_initialProduct == null || _initialProduct!.isDraft) {
-        final newProduct = Product(
-          id: _initialProduct?.id ?? const Uuid().v4(),
-          name: _productNameController.text,
-          description: _descriptionController.text,
-          price: double.parse(_priceController.text),
-          salePrice: salePriceValue,
-          stock: stockValue,
-          images: _images.map((image) => image.path).toList(),
-          categories: _selectedCategories,
-        );
-        productProvider.addProduct(newProduct);
+        productProvider.addProduct(productToSave);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Product added successfully!')),
           );
         }
       } else {
-        final updatedProduct = Product(
-          id: _initialProduct!.id,
-          name: _productNameController.text,
-          description: _descriptionController.text,
-          price: double.parse(_priceController.text),
-          salePrice: salePriceValue,
-          stock: stockValue,
-          images: _images.map((image) => image.path).toList(),
-          categories: _selectedCategories,
-        );
-        productProvider.updateProduct(updatedProduct);
+        productProvider.updateProduct(productToSave);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Product updated successfully!')),
@@ -408,6 +373,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
     if (pickedFiles.isNotEmpty) {
       setState(() {
         _images.addAll(pickedFiles);
+        _editedProduct = _editedProduct.copyWith(
+          images: _images.map((image) => image.path).toList(),
+        );
       });
       _imageFieldKey.currentState?.validate();
     }
@@ -419,6 +387,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
       if (_images.isNotEmpty && _activePage >= _images.length) {
         _activePage = _images.length - 1;
       }
+      _editedProduct = _editedProduct.copyWith(
+        images: _images.map((image) => image.path).toList(),
+      );
     });
     _imageFieldKey.currentState?.validate();
   }
@@ -442,14 +413,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       ...categoryProvider.categories.map((category) {
                         return CheckboxListTile(
                           title: Text(category),
-                          value: _selectedCategories.contains(category),
+                          value: _editedProduct.categories.contains(category),
                           onChanged: (bool? value) {
                             setState(() {
+                              final newCategories = List<String>.from(_editedProduct.categories);
                               if (value == true) {
-                                _selectedCategories.add(category);
+                                newCategories.add(category);
                               } else {
-                                _selectedCategories.remove(category);
+                                newCategories.remove(category);
                               }
+                              _editedProduct = _editedProduct.copyWith(categories: newCategories);
                             });
                           },
                         );
@@ -471,7 +444,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
           },
         );
       },
-    );
+    ).then((_) {
+      setState(() {});
+    });
   }
 
   @override
@@ -660,9 +635,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(_selectedCategories.isEmpty
+            Text(_editedProduct.categories.isEmpty
                 ? 'Select categories'
-                : _selectedCategories.join(', ')),
+                : _editedProduct.categories.join(', ')),
             const Icon(Icons.arrow_drop_down),
           ],
         ),
