@@ -80,30 +80,10 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Option ${i + 1}', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _optionControllers[i],
-                      decoration: const InputDecoration(
-                        labelText: 'Option (e.g., Size)',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    flex: 2,
-                    child: TextFormField(
-                      controller: _valueControllers[i],
-                      decoration: const InputDecoration(
-                        labelText: 'Values (comma-separated, e.g., S, M, L)',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
+                  Text('Option ${i + 1}', style: Theme.of(context).textTheme.titleMedium),
                   IconButton(
                     icon: const Icon(Icons.delete_outline),
                     onPressed: () {
@@ -115,6 +95,22 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                   )
                 ],
               ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _optionControllers[i],
+                decoration: const InputDecoration(
+                  labelText: 'Option (e.g., Size)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _valueControllers[i],
+                decoration: const InputDecoration(
+                  labelText: 'Values (comma-separated, e.g., S, M, L)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
             ],
           ),
         ),
@@ -123,4 +119,3 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
     return fields;
   }
 }
-
