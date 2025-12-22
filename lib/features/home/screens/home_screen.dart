@@ -142,7 +142,6 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       leadingContent = const CircleAvatar(
         radius: 12,
-        child: Icon(Icons.store, size: 16),
       );
     }
 
@@ -156,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
               floating: true,
               pinned: _isSelectionMode,
               leading: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(left: 16.0),
                 child: leadingContent,
               ),
               title: _isSelectionMode
