@@ -126,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Widget leadingContent;
     if (storeProvider.logo != null && !_isSelectionMode) {
       leadingContent = CircleAvatar(
-        radius: 18,
+        radius: 12,
         backgroundImage: FileImage(storeProvider.logo!),
       );
     } else if (_isSelectionMode) {
@@ -141,8 +141,8 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } else {
       leadingContent = const CircleAvatar(
-        radius: 18,
-        child: Icon(Icons.store),
+        radius: 12,
+        child: Icon(Icons.store, size: 16),
       );
     }
 
@@ -155,8 +155,10 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverAppBar(
               floating: true,
               pinned: _isSelectionMode,
-              titleSpacing: 0,
-              leading: leadingContent,
+              leading: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: leadingContent,
+              ),
               title: _isSelectionMode
                   ? Text('${_selectedProducts.length} selected')
                   : Text(
