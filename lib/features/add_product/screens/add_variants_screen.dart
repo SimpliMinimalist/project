@@ -20,7 +20,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
   }
 
   void _addOption() {
-    if (_optionControllers.length < 4) {
+    if (_optionControllers.length < 3) {
       setState(() {
         _optionControllers.add(TextEditingController());
         _valueControllers.add(TextEditingController());
@@ -59,7 +59,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
         child: ListView(
           children: [
             ..._buildVariantFields(),
-            if (_optionControllers.length < 4)
+            if (_optionControllers.length < 3)
               ElevatedButton.icon(
                 onPressed: _addOption,
                 icon: const Icon(Icons.add),
