@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:myapp/features/add_product/models/product_model.dart';
+import 'package:myapp/features/add_product/screens/add_variants_screen.dart';
 import 'package:myapp/features/home/widgets/add_category_bottom_sheet.dart';
 import 'package:myapp/providers/category_provider.dart';
 import 'package:myapp/providers/product_provider.dart';
@@ -593,6 +594,20 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   labelText: 'Description',
                   maxLines: 3,
                 ),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AddVariantsScreen()),
+                    );
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Product Variants'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                )
               ],
             ),
           ),
