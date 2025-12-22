@@ -11,6 +11,12 @@ class AddVariantsScreen extends StatefulWidget {
 class _AddVariantsScreenState extends State<AddVariantsScreen> {
   final List<TextEditingController> _optionControllers = [];
   final List<TextEditingController> _valueControllers = [];
+  final List<String> _optionPlaceholders = ['Size', 'Color', 'Material'];
+  final List<String> _valuePlaceholders = [
+    'Small, Medium, Large',
+    'Red, Blue, Green',
+    'Cotton, Silk, Nylon'
+  ];
 
   @override
   void initState() {
@@ -98,17 +104,18 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
               const SizedBox(height: 8),
               TextFormField(
                 controller: _optionControllers[i],
-                decoration: const InputDecoration(
-                  labelText: 'Option (e.g., Size)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: 'Option (e.g., ${_optionPlaceholders[i]})',
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _valueControllers[i],
-                decoration: const InputDecoration(
-                  labelText: 'Values (comma-separated, e.g., S, M, L)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText:
+                      'Values (comma-separated, e.g., ${_valuePlaceholders[i]})',
+                  border: const OutlineInputBorder(),
                 ),
               ),
             ],
