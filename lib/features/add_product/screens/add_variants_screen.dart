@@ -12,6 +12,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
   final List<TextEditingController> _optionControllers = [];
   // Each option will have a list of value controllers
   final List<List<TextEditingController>> _valueControllers = [];
+  final List<FocusNode> _optionFocusNodes = [];
   final List<String> _optionPlaceholders = ['Size', 'Color', 'Material'];
   // Each option will have a list of value placeholders
   final List<List<String>> _valuePlaceholders = [
@@ -31,8 +32,8 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
     if (_optionControllers.length < 3) {
       setState(() {
         _optionControllers.add(TextEditingController());
-        // Add a list for the new option's values, starting with one value field
         _valueControllers.add([TextEditingController()]);
+        _optionFocusNodes.add(FocusNode());
       });
     }
   }
@@ -44,15 +45,18 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
   }
 
   void _removeOption(int optionIndex) {
-    // First, dispose the controllers that will be removed.
+    // First, dispose the controllers and focus nodes that will be removed.
     _optionControllers[optionIndex].dispose();
     for (var controller in _valueControllers[optionIndex]) {
       controller.dispose();
     }
+    _optionFocusNodes[optionIndex].dispose();
+
     // Then, remove them from the lists.
     setState(() {
       _optionControllers.removeAt(optionIndex);
       _valueControllers.removeAt(optionIndex);
+      _optionFocusNodes.removeAt(optionIndex);
     });
   }
 
@@ -75,6 +79,9 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
       for (var controller in valueList) {
         controller.dispose();
       }
+    }
+    for (var focusNode in _optionFocusNodes) {
+      focusNode.dispose();
     }
     super.dispose();
   }
@@ -120,6 +127,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
   List<Widget> _buildVariantFields() {
     List<Widget> fields = [];
     for (int i = 0; i < _optionControllers.length; i++) {
+
       fields.add(
         Padding(
           padding: const EdgeInsets.only(bottom: 24.0),
@@ -138,13 +146,22 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                 ],
               ),
               const SizedBox(height: 8),
-              TextFormField(
-                controller: _optionControllers[i],
-                decoration: InputDecoration(
-                  labelText: 'Variant name',
-                  hintText: 'e.g., ${_optionPlaceholders[i]}',
-                  border: const OutlineInputBorder(),
-                ),
+              StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  final focusNode = _optionFocusNodes[i];
+                  focusNode.addListener(() {
+                    setState(() {}); // Rebuild to update label
+                  });
+
+                  return TextFormField(
+                    controller: _optionControllers[i],
+                    focusNode: focusNode,
+                    decoration: InputDecoration(
+                      labelText: focusNode.hasFocus ? 'Variant name' : 'Variant name e.g., ${_optionPlaceholders[i]}',
+                      border: const OutlineInputBorder(),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 16),
               Text('Values (${_valueControllers[i].length})', style: Theme.of(context).textTheme.titleSmall),
