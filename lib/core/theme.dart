@@ -41,7 +41,7 @@ final ThemeData appTheme = ThemeData(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
       ),
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      padding: const EdgeInsets.symmetric(vertical: 12.0), // Reverted from 8.0 to 12.0
     ),
   ),
   inputDecorationTheme: InputDecorationTheme(

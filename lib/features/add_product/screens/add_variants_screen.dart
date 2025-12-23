@@ -195,8 +195,8 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
           : 'Custom';
 
       final String dynamicLabelText = (isFocused || hasText)
-          ? 'Variant name'
-          : 'Variant name e.g., $currentPlaceholder';
+          ? 'Option name'
+          : 'Option name e.g., $currentPlaceholder';
 
       fields.add(
         Padding(
@@ -226,7 +226,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Variant name is required';
+                    return 'Option name is required';
                   }
                   return null;
                 },

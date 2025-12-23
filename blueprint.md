@@ -45,3 +45,10 @@ This document outlines the project's style, design, and features, from its initi
   - Building a bottom sheet to add new categories.
   - Integrating the category filter on the home screen.
   - Allowing users to assign categories to products when adding or editing them.
+
+## Recent Changes
+
+- **Update Add Variants Screen:**
+    - Changed the label "Variant Name" to "Option name".
+    - Changed the validator for the option name to reflect the label change.
+    - Reverted the "Save" button to the default Flutter style by removing custom height and shape.
