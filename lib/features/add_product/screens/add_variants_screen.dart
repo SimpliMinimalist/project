@@ -13,6 +13,12 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
   // Each option will have a list of value controllers
   final List<List<TextEditingController>> _valueControllers = [];
   final List<String> _optionPlaceholders = ['Size', 'Color', 'Material'];
+  // Each option will have a list of value placeholders
+  final List<List<String>> _valuePlaceholders = [
+    ['Small', 'Medium', 'Large'], // Placeholders for Size
+    ['Red', 'Blue', 'Green'], // Placeholders for Color
+    ['Cotton', 'Silk', 'Nylon'] // Placeholders for Material
+  ];
 
   @override
   void initState() {
@@ -180,6 +186,14 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
   List<Widget> _buildValueFields(int optionIndex) {
       List<Widget> valueFields = [];
       for (int j = 0; j < _valueControllers[optionIndex].length; j++) {
+
+          final String hintText;
+          if (optionIndex < _valuePlaceholders.length && j < _valuePlaceholders[optionIndex].length) {
+            hintText = 'e.g., ${_valuePlaceholders[optionIndex][j]}';
+          } else {
+            hintText = 'Value';
+          }
+
           valueFields.add(
               Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
@@ -190,8 +204,8 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                           Expanded(
                               child: TextFormField(
                                   controller: _valueControllers[optionIndex][j],
-                                  decoration: const InputDecoration(
-                                      hintText: 'Value',
+                                  decoration: InputDecoration(
+                                      hintText: hintText,
                                       border: InputBorder.none,
                                   ),
                               ),
