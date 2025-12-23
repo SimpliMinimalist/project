@@ -111,7 +111,9 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
 
   void _saveVariants() {
     if (_formKey.currentState!.validate()) {
-      Navigator.pop(context);
+      if (_isFormSufficient()) { // Only pop if the form is also sufficient
+        Navigator.pop(context);
+      }
     }
   }
 
@@ -125,7 +127,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: ElevatedButton(
-              onPressed: isSaveEnabled ? _saveVariants : null, // Disable button if not sufficient
+              onPressed: _saveVariants, // Always call _saveVariants
               style: ElevatedButton.styleFrom(
                 backgroundColor: isSaveEnabled
                     ? Theme.of(context).primaryColor
