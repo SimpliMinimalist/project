@@ -10,21 +10,19 @@ class AddVariantsScreen extends StatefulWidget {
 
 class _AddVariantsScreenState extends State<AddVariantsScreen> {
   final List<TextEditingController> _optionControllers = [];
-  // Each option will have a list of value controllers
   final List<List<TextEditingController>> _valueControllers = [];
   final List<FocusNode> _optionFocusNodes = [];
+  final List<List<FocusNode>> _valueFocusNodes = [];
   final List<String> _optionPlaceholders = ['Size', 'Color', 'Material'];
-  // Each option will have a list of value placeholders
   final List<List<String>> _valuePlaceholders = [
-    ['Small', 'Medium', 'Large'], // Placeholders for Size
-    ['Red', 'Blue', 'Green'], // Placeholders for Color
-    ['Cotton', 'Silk', 'Nylon'] // Placeholders for Material
+    ['Small', 'Medium', 'Large'],
+    ['Red', 'Blue', 'Green'],
+    ['Cotton', 'Silk', 'Nylon']
   ];
 
   @override
   void initState() {
     super.initState();
-    // Initialize with one option
     _addOption();
   }
 
@@ -34,41 +32,48 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
         _optionControllers.add(TextEditingController());
         _valueControllers.add([TextEditingController()]);
         _optionFocusNodes.add(FocusNode());
+        _valueFocusNodes.add([FocusNode()]);
       });
     }
   }
 
   void _addValue(int optionIndex) {
+    final newFocusNode = FocusNode();
     setState(() {
       _valueControllers[optionIndex].add(TextEditingController());
+      _valueFocusNodes[optionIndex].add(newFocusNode);
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(newFocusNode);
     });
   }
 
   void _removeOption(int optionIndex) {
-    // First, dispose the controllers and focus nodes that will be removed.
     _optionControllers[optionIndex].dispose();
     for (var controller in _valueControllers[optionIndex]) {
       controller.dispose();
     }
+    for (var focusNode in _valueFocusNodes[optionIndex]) {
+      focusNode.dispose();
+    }
     _optionFocusNodes[optionIndex].dispose();
 
-    // Then, remove them from the lists.
     setState(() {
       _optionControllers.removeAt(optionIndex);
       _valueControllers.removeAt(optionIndex);
       _optionFocusNodes.removeAt(optionIndex);
+      _valueFocusNodes.removeAt(optionIndex);
     });
   }
 
   void _removeValue(int optionIndex, int valueIndex) {
-    // First, dispose the controller that will be removed.
     _valueControllers[optionIndex][valueIndex].dispose();
-    // Then, remove it from the list.
+    _valueFocusNodes[optionIndex][valueIndex].dispose();
     setState(() {
       _valueControllers[optionIndex].removeAt(valueIndex);
+      _valueFocusNodes[optionIndex].removeAt(valueIndex);
     });
   }
-
 
   @override
   void dispose() {
@@ -83,6 +88,11 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
     for (var focusNode in _optionFocusNodes) {
       focusNode.dispose();
     }
+    for (var focusNodeList in _valueFocusNodes) {
+      for (var focusNode in focusNodeList) {
+        focusNode.dispose();
+      }
+    }
     super.dispose();
   }
 
@@ -95,7 +105,6 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: () {
-              // TODO: Save variants logic
               Navigator.pop(context);
             },
           ),
@@ -127,7 +136,6 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
   List<Widget> _buildVariantFields() {
     List<Widget> fields = [];
     for (int i = 0; i < _optionControllers.length; i++) {
-
       fields.add(
         Padding(
           padding: const EdgeInsets.only(bottom: 24.0),
@@ -150,7 +158,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                 builder: (BuildContext context, StateSetter setState) {
                   final focusNode = _optionFocusNodes[i];
                   focusNode.addListener(() {
-                    setState(() {}); // Rebuild to update label
+                    setState(() {});
                   });
 
                   return TextFormField(
@@ -203,7 +211,6 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
   List<Widget> _buildValueFields(int optionIndex) {
       List<Widget> valueFields = [];
       for (int j = 0; j < _valueControllers[optionIndex].length; j++) {
-
           final String hintText;
           if (optionIndex < _valuePlaceholders.length && j < _valuePlaceholders[optionIndex].length) {
             hintText = 'e.g., ${_valuePlaceholders[optionIndex][j]}';
@@ -221,6 +228,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                           Expanded(
                               child: TextFormField(
                                   controller: _valueControllers[optionIndex][j],
+                                  focusNode: _valueFocusNodes[optionIndex][j],
                                   decoration: InputDecoration(
                                       hintText: hintText,
                                       border: InputBorder.none,
