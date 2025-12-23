@@ -29,15 +29,23 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
   void _addOption() {
     if (_optionControllers.length < 3) {
       final optionController = TextEditingController();
+      final focusNode = FocusNode(); // Create a new FocusNode here
       final valueController = TextEditingController();
 
       setState(() {
         _optionControllers.add(optionController);
         _valueControllers.add([valueController]);
-        _optionFocusNodes.add(FocusNode());
+        _optionFocusNodes.add(focusNode); // Add it to the list
         _valueFocusNodes.add([FocusNode()]);
       });
+      // Add listener to the new focus node
+      focusNode.addListener(_onFocusChange);
     }
+  }
+
+  void _onFocusChange() {
+    // This rebuilds the UI to update the dynamic label
+    setState(() {});
   }
 
   void _addValue(int optionIndex) {
@@ -60,6 +68,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
     for (var focusNode in _valueFocusNodes[optionIndex]) {
       focusNode.dispose();
     }
+    _optionFocusNodes[optionIndex].removeListener(_onFocusChange); // Remove listener
     _optionFocusNodes[optionIndex].dispose();
 
     setState(() {
@@ -90,6 +99,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
       }
     }
     for (var focusNode in _optionFocusNodes) {
+      focusNode.removeListener(_onFocusChange); // Remove listener on dispose
       focusNode.dispose();
     }
     for (var focusNodeList in _valueFocusNodes) {
@@ -177,6 +187,17 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
   List<Widget> _buildVariantFields() {
     List<Widget> fields = [];
     for (int i = 0; i < _optionControllers.length; i++) {
+      // Determine the dynamic labelText
+      final bool isFocused = _optionFocusNodes[i].hasFocus;
+      final bool hasText = _optionControllers[i].text.isNotEmpty;
+      final String currentPlaceholder = (i < _optionPlaceholders.length)
+          ? _optionPlaceholders[i]
+          : 'Custom';
+
+      final String dynamicLabelText = (isFocused || hasText)
+          ? 'Variant name'
+          : 'Variant name e.g., $currentPlaceholder';
+
       fields.add(
         Padding(
           padding: const EdgeInsets.only(bottom: 24.0),
@@ -199,8 +220,8 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                 controller: _optionControllers[i],
                 focusNode: _optionFocusNodes[i],
                 decoration: InputDecoration(
-                  labelText: 'Variant name',
-                  hintText: 'e.g., ${_optionPlaceholders[i]}',
+                  labelText: dynamicLabelText, // Use dynamic labelText
+                  // hintText is removed as per requirement for dynamic labelText
                   border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
@@ -210,7 +231,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                   return null;
                 },
                 onChanged: (value) { // Added onChanged callback
-                  setState(() {});
+                  setState(() {}); // Rebuild to update labelText based on text presence
                 },
                 autovalidateMode: AutovalidateMode.onUserInteraction, // Changed to onUserInteraction
               ),
