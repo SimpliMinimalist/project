@@ -146,7 +146,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
       ),
       body: Form(
         key: _formKey,
-        autovalidateMode: AutovalidateMode.disabled, // Changed to disabled
+        autovalidateMode: AutovalidateMode.disabled, // Form validation still disabled until manual call
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ListView(
@@ -212,7 +212,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                 onChanged: (value) { // Added onChanged callback
                   setState(() {});
                 },
-                autovalidateMode: AutovalidateMode.disabled, // Changed to disabled
+                autovalidateMode: AutovalidateMode.onUserInteraction, // Changed to onUserInteraction
               ),
               const SizedBox(height: 16),
               Text('Values (${_valueControllers[i].length})',
@@ -283,7 +283,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                 onChanged: (value) { // Added onChanged callback
                   setState(() {});
                 },
-                autovalidateMode: AutovalidateMode.disabled, // Changed to disabled
+                autovalidateMode: AutovalidateMode.onUserInteraction, // Changed to onUserInteraction
               ),
             ),
             if (_valueControllers[optionIndex].length > 1)
