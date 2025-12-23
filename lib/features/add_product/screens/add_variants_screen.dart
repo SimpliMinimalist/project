@@ -9,15 +9,16 @@ class AddVariantsScreen extends StatefulWidget {
 }
 
 class _AddVariantsScreenState extends State<AddVariantsScreen> {
+  final _formKey = GlobalKey<FormState>();
   final List<TextEditingController> _optionControllers = [];
   final List<List<TextEditingController>> _valueControllers = [];
   final List<FocusNode> _optionFocusNodes = [];
   final List<List<FocusNode>> _valueFocusNodes = [];
   final List<String> _optionPlaceholders = ['Size', 'Color', 'Material'];
   final List<List<String>> _valuePlaceholders = [
-    ['Small', 'Medium', 'Large'], // Placeholders for Size
-    ['Red', 'Blue', 'Green'], // Placeholders for Color
-    ['Cotton', 'Silk', 'Nylon'] // Placeholders for Material
+    ['Small', 'Medium', 'Large'],
+    ['Red', 'Blue', 'Green'],
+    ['Cotton', 'Silk', 'Nylon']
   ];
   bool _isSaveEnabled = false;
 
@@ -90,6 +91,8 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
       _valueFocusNodes.removeAt(optionIndex);
     });
     _updateSaveButtonState();
+    // After removing, we might not need validation on other fields, so re-validate
+    _formKey.currentState?.validate();
   }
 
   void _removeValue(int optionIndex, int valueIndex) {
@@ -102,6 +105,8 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
       _valueFocusNodes[optionIndex].removeAt(valueIndex);
     });
     _updateSaveButtonState();
+    // After removing, we might not need validation on other fields, so re-validate
+    _formKey.currentState?.validate();
   }
 
   @override
@@ -143,6 +148,14 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
   }
 
   void _saveVariants() {
+    // First, trigger validation on all fields
+    final isFormValid = _formKey.currentState!.validate();
+    if (!isFormValid) {
+      // If form is not valid, errors will be displayed automatically. Stop here.
+      return;
+    }
+
+    // Then, check if at least one variant with a value exists
     if (_isSaveEnabled) {
       // TODO: Implement save logic, e.g., passing data back
       Navigator.pop(context);
@@ -170,7 +183,8 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                 backgroundColor: _isSaveEnabled
                     ? Theme.of(context).primaryColor
                     : Colors.grey.shade300,
-                foregroundColor: _isSaveEnabled ? Colors.white : Colors.grey.shade600,
+                foregroundColor:
+                    _isSaveEnabled ? Colors.white : Colors.grey.shade600,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(100),
@@ -181,27 +195,30 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            ..._buildVariantFields(),
-            if (_optionControllers.length < 3)
-              ElevatedButton.icon(
-                onPressed: _addOption,
-                icon: const Icon(Icons.add),
-                label: const Text('Add another option'),
+      body: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ListView(
+            children: [
+              ..._buildVariantFields(),
+              if (_optionControllers.length < 3)
+                ElevatedButton.icon(
+                  onPressed: _addOption,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add another option'),
+                ),
+              const SizedBox(height: 24),
+              Text(
+                'In the next step, you will add images, prices, and stock for each variant.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: Colors.grey[600]),
               ),
-            const SizedBox(height: 24),
-            Text(
-              'In the next step, you will add images, prices, and stock for each variant.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: Colors.grey[600]),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -221,7 +238,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                 children: [
                   Text('Option ${i + 1}',
                       style: Theme.of(context).textTheme.titleMedium),
-                  if (_optionControllers.length > 1)
+                  if (_optionControllers.isNotEmpty)
                     IconButton(
                         icon: const Icon(Icons.delete_outline),
                         onPressed: () => _removeOption(i))
@@ -244,6 +261,14 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                           : 'Variant name e.g., ${_optionPlaceholders[i]}',
                       border: const OutlineInputBorder(),
                     ),
+                    validator: (value) {
+                      if (_optionControllers.length > 1 &&
+                          (value == null || value.trim().isEmpty)) {
+                        return 'Option name is required.';
+                      }
+                      return null;
+                    },
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                   );
                 },
               ),
@@ -310,6 +335,14 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                   hintText: hintText,
                   border: InputBorder.none,
                 ),
+                validator: (value) {
+                  if (_valueControllers[optionIndex].length > 1 &&
+                      (value == null || value.trim().isEmpty)) {
+                    return 'Value is required.';
+                  }
+                  return null;
+                },
+                autovalidateMode: AutovalidateMode.onUserInteraction,
               ),
             ),
             if (_valueControllers[optionIndex].length > 1)
