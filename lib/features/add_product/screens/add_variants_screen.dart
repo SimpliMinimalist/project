@@ -19,7 +19,6 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
     ['Red', 'Blue', 'Green'],
     ['Cotton', 'Silk', 'Nylon']
   ];
-  bool _saveAttempted = false;
 
   @override
   void initState() {
@@ -111,10 +110,6 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
   }
 
   void _saveVariants() {
-    setState(() {
-      _saveAttempted = true;
-    });
-
     if (_formKey.currentState!.validate()) {
       Navigator.pop(context);
     }
@@ -130,7 +125,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: ElevatedButton(
-              onPressed: _saveVariants,
+              onPressed: isSaveEnabled ? _saveVariants : null, // Disable button if not sufficient
               style: ElevatedButton.styleFrom(
                 backgroundColor: isSaveEnabled
                     ? Theme.of(context).primaryColor
@@ -149,7 +144,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
       ),
       body: Form(
         key: _formKey,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
+        autovalidateMode: AutovalidateMode.disabled, // Changed to disabled
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ListView(
@@ -212,7 +207,10 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                   }
                   return null;
                 },
-                autovalidateMode: AutovalidateMode.onUserInteraction,
+                onChanged: (value) { // Added onChanged callback
+                  setState(() {});
+                },
+                autovalidateMode: AutovalidateMode.disabled, // Changed to disabled
               ),
               const SizedBox(height: 16),
               Text('Values (${_valueControllers[i].length})',
@@ -280,7 +278,10 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                   }
                   return null;
                 },
-                autovalidateMode: AutovalidateMode.onUserInteraction,
+                onChanged: (value) { // Added onChanged callback
+                  setState(() {});
+                },
+                autovalidateMode: AutovalidateMode.disabled, // Changed to disabled
               ),
             ),
             if (_valueControllers[optionIndex].length > 1)
