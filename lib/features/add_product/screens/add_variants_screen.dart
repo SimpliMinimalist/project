@@ -10,13 +10,9 @@ class AddVariantsScreen extends StatefulWidget {
 
 class _AddVariantsScreenState extends State<AddVariantsScreen> {
   final List<TextEditingController> _optionControllers = [];
-  final List<TextEditingController> _valueControllers = [];
+  // Each option will have a list of value controllers
+  final List<List<TextEditingController>> _valueControllers = [];
   final List<String> _optionPlaceholders = ['Size', 'Color', 'Material'];
-  final List<String> _valuePlaceholders = [
-    'Small, Medium, Large',
-    'Red, Blue, Green',
-    'Cotton, Silk, Nylon'
-  ];
 
   @override
   void initState() {
@@ -29,18 +25,50 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
     if (_optionControllers.length < 3) {
       setState(() {
         _optionControllers.add(TextEditingController());
-        _valueControllers.add(TextEditingController());
+        // Add a list for the new option's values, starting with one value field
+        _valueControllers.add([TextEditingController()]);
       });
     }
   }
+
+  void _addValue(int optionIndex) {
+    setState(() {
+      _valueControllers[optionIndex].add(TextEditingController());
+    });
+  }
+
+  void _removeOption(int optionIndex) {
+    // First, dispose the controllers that will be removed.
+    _optionControllers[optionIndex].dispose();
+    for (var controller in _valueControllers[optionIndex]) {
+      controller.dispose();
+    }
+    // Then, remove them from the lists.
+    setState(() {
+      _optionControllers.removeAt(optionIndex);
+      _valueControllers.removeAt(optionIndex);
+    });
+  }
+
+  void _removeValue(int optionIndex, int valueIndex) {
+    // First, dispose the controller that will be removed.
+    _valueControllers[optionIndex][valueIndex].dispose();
+    // Then, remove it from the list.
+    setState(() {
+      _valueControllers[optionIndex].removeAt(valueIndex);
+    });
+  }
+
 
   @override
   void dispose() {
     for (var controller in _optionControllers) {
       controller.dispose();
     }
-    for (var controller in _valueControllers) {
-      controller.dispose();
+    for (var valueList in _valueControllers) {
+      for (var controller in valueList) {
+        controller.dispose();
+      }
     }
     super.dispose();
   }
@@ -71,6 +99,12 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                 icon: const Icon(Icons.add),
                 label: const Text('Add another option'),
               ),
+            const SizedBox(height: 24),
+            Text(
+              'In the next step, you will add images, prices, and stock for each variant.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+            ),
           ],
         ),
       ),
@@ -82,7 +116,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
     for (int i = 0; i < _optionControllers.length; i++) {
       fields.add(
         Padding(
-          padding: const EdgeInsets.only(bottom: 16.0),
+          padding: const EdgeInsets.only(bottom: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -90,39 +124,91 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Option ${i + 1}', style: Theme.of(context).textTheme.titleMedium),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: () {
-                      setState(() {
-                        _optionControllers.removeAt(i);
-                        _valueControllers.removeAt(i);
-                      });
-                    },
-                  )
+                  if (_optionControllers.length > 1)
+                    IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        onPressed: () => _removeOption(i),
+                    )
                 ],
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _optionControllers[i],
                 decoration: InputDecoration(
-                  labelText: 'Option (e.g., ${_optionPlaceholders[i]})',
+                  labelText: 'Name',
+                  hintText: 'e.g., ${_optionPlaceholders[i]}',
                   border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _valueControllers[i],
-                decoration: InputDecoration(
-                  labelText:
-                      'Values (comma-separated, e.g., ${_valuePlaceholders[i]})',
-                  border: const OutlineInputBorder(),
+              Text('Values (${_valueControllers[i].length})', style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 8),
+              Container(
+                 decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-              ),
+                child: Column(
+                    children: [
+                        ..._buildValueFields(i),
+                        const Divider(height: 1),
+                        InkWell(
+                            onTap: () => _addValue(i),
+                            child: const Padding(
+                                padding: EdgeInsets.all(12.0),
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                        Icon(Icons.add, size: 20),
+                                        SizedBox(width: 8),
+                                        Text('Add value'),
+                                    ],
+                                ),
+                            ),
+                        ),
+                    ],
+                ),
+              )
             ],
           ),
         ),
       );
     }
     return fields;
+  }
+
+  List<Widget> _buildValueFields(int optionIndex) {
+      List<Widget> valueFields = [];
+      for (int j = 0; j < _valueControllers[optionIndex].length; j++) {
+          valueFields.add(
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                  child: Row(
+                      children: [
+                          const Icon(Icons.drag_handle, color: Colors.grey),
+                          const SizedBox(width: 8),
+                          Expanded(
+                              child: TextFormField(
+                                  controller: _valueControllers[optionIndex][j],
+                                  decoration: const InputDecoration(
+                                      hintText: 'Value',
+                                      border: InputBorder.none,
+                                  ),
+                              ),
+                          ),
+                          if (_valueControllers[optionIndex].length > 1)
+                            IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.grey),
+                                onPressed: () => _removeValue(optionIndex, j),
+                            ),
+                      ],
+                  ),
+              )
+          );
+          if (j < _valueControllers[optionIndex].length -1) {
+              valueFields.add(const Divider(height: 1, indent: 12, endIndent: 12));
+          }
+      }
+      return valueFields;
   }
 }
