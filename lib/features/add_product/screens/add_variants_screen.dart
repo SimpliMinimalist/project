@@ -135,7 +135,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
               TextFormField(
                 controller: _optionControllers[i],
                 decoration: InputDecoration(
-                  labelText: 'Name',
+                  labelText: 'Variant name',
                   hintText: 'e.g., ${_optionPlaceholders[i]}',
                   border: const OutlineInputBorder(),
                 ),
