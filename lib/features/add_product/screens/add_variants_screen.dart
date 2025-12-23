@@ -256,7 +256,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                     controller: _optionControllers[i],
                     focusNode: focusNode,
                     decoration: InputDecoration(
-                      labelText: focusNode.hasFocus
+                      labelText: (focusNode.hasFocus || _optionControllers[i].text.isNotEmpty)
                           ? 'Variant name'
                           : 'Variant name e.g., ${_optionPlaceholders[i]}',
                       border: const OutlineInputBorder(),
