@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class AddVariantsScreen extends StatefulWidget {
@@ -20,32 +19,18 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
     ['Red', 'Blue', 'Green'],
     ['Cotton', 'Silk', 'Nylon']
   ];
-  bool _isSaveEnabled = false;
+  bool _saveAttempted = false;
 
   @override
   void initState() {
     super.initState();
     _addOption();
-    // Add listeners to initial controllers
-    _optionControllers.first.addListener(_updateSaveButtonState);
-    _valueControllers.first.first.addListener(_updateSaveButtonState);
-  }
-
-  void _updateSaveButtonState() {
-    final bool isEnabled = _validateVariants();
-    if (_isSaveEnabled != isEnabled) {
-      setState(() {
-        _isSaveEnabled = isEnabled;
-      });
-    }
   }
 
   void _addOption() {
     if (_optionControllers.length < 3) {
       final optionController = TextEditingController();
-      optionController.addListener(_updateSaveButtonState);
       final valueController = TextEditingController();
-      valueController.addListener(_updateSaveButtonState);
 
       setState(() {
         _optionControllers.add(optionController);
@@ -53,14 +38,12 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
         _optionFocusNodes.add(FocusNode());
         _valueFocusNodes.add([FocusNode()]);
       });
-      _updateSaveButtonState();
     }
   }
 
   void _addValue(int optionIndex) {
     final newFocusNode = FocusNode();
     final newValueController = TextEditingController();
-    newValueController.addListener(_updateSaveButtonState);
     setState(() {
       _valueControllers[optionIndex].add(newValueController);
       _valueFocusNodes[optionIndex].add(newFocusNode);
@@ -68,15 +51,11 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FocusScope.of(context).requestFocus(newFocusNode);
     });
-    _updateSaveButtonState();
   }
 
   void _removeOption(int optionIndex) {
-    _optionControllers[optionIndex].removeListener(_updateSaveButtonState);
     _optionControllers[optionIndex].dispose();
-
     for (var controller in _valueControllers[optionIndex]) {
-      controller.removeListener(_updateSaveButtonState);
       controller.dispose();
     }
     for (var focusNode in _valueFocusNodes[optionIndex]) {
@@ -90,34 +69,24 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
       _optionFocusNodes.removeAt(optionIndex);
       _valueFocusNodes.removeAt(optionIndex);
     });
-    _updateSaveButtonState();
-    // After removing, we might not need validation on other fields, so re-validate
-    _formKey.currentState?.validate();
   }
 
   void _removeValue(int optionIndex, int valueIndex) {
-    _valueControllers[optionIndex][valueIndex]
-        .removeListener(_updateSaveButtonState);
     _valueControllers[optionIndex][valueIndex].dispose();
     _valueFocusNodes[optionIndex][valueIndex].dispose();
     setState(() {
       _valueControllers[optionIndex].removeAt(valueIndex);
       _valueFocusNodes[optionIndex].removeAt(valueIndex);
     });
-    _updateSaveButtonState();
-    // After removing, we might not need validation on other fields, so re-validate
-    _formKey.currentState?.validate();
   }
 
   @override
   void dispose() {
     for (var controller in _optionControllers) {
-      controller.removeListener(_updateSaveButtonState);
       controller.dispose();
     }
     for (var valueList in _valueControllers) {
       for (var controller in valueList) {
-        controller.removeListener(_updateSaveButtonState);
         controller.dispose();
       }
     }
@@ -132,45 +101,28 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
     super.dispose();
   }
 
-  bool _validateVariants() {
-    if (_optionControllers.isEmpty) return false;
-
-    for (int i = 0; i < _optionControllers.length; i++) {
-      final optionName = _optionControllers[i].text.trim();
-      final values = _valueControllers[i];
-
-      if (optionName.isNotEmpty &&
-          values.any((controller) => controller.text.trim().isNotEmpty)) {
-        return true;
-      }
-    }
-    return false;
+  bool _isFormSufficient() {
+    // True if at least one option has a name and at least one value.
+    return _optionControllers.any((optCtrl) {
+      if (optCtrl.text.trim().isEmpty) return false;
+      int index = _optionControllers.indexOf(optCtrl);
+      return _valueControllers[index].any((valCtrl) => valCtrl.text.trim().isNotEmpty);
+    });
   }
 
   void _saveVariants() {
-    // First, trigger validation on all fields
-    final isFormValid = _formKey.currentState!.validate();
-    if (!isFormValid) {
-      // If form is not valid, errors will be displayed automatically. Stop here.
-      return;
-    }
+    setState(() {
+      _saveAttempted = true;
+    });
 
-    // Then, check if at least one variant with a value exists
-    if (_isSaveEnabled) {
-      // TODO: Implement save logic, e.g., passing data back
+    if (_formKey.currentState!.validate()) {
       Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please add at least one option with a value.'),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isSaveEnabled = _isFormSufficient();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add Variants'),
@@ -180,11 +132,11 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
             child: ElevatedButton(
               onPressed: _saveVariants,
               style: ElevatedButton.styleFrom(
-                backgroundColor: _isSaveEnabled
+                backgroundColor: isSaveEnabled
                     ? Theme.of(context).primaryColor
                     : Colors.grey.shade300,
                 foregroundColor:
-                    _isSaveEnabled ? Colors.white : Colors.grey.shade600,
+                    isSaveEnabled ? Colors.white : Colors.grey.shade600,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(100),
@@ -197,6 +149,7 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
       ),
       body: Form(
         key: _formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ListView(
@@ -238,39 +191,28 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                 children: [
                   Text('Option ${i + 1}',
                       style: Theme.of(context).textTheme.titleMedium),
-                  if (_optionControllers.isNotEmpty)
+                  if (_optionControllers.length > 1)
                     IconButton(
                         icon: const Icon(Icons.delete_outline),
                         onPressed: () => _removeOption(i))
                 ],
               ),
               const SizedBox(height: 8),
-              StatefulBuilder(
-                builder: (BuildContext context, StateSetter setState) {
-                  final focusNode = _optionFocusNodes[i];
-                  focusNode.addListener(() {
-                    setState(() {});
-                  });
-
-                  return TextFormField(
-                    controller: _optionControllers[i],
-                    focusNode: focusNode,
-                    decoration: InputDecoration(
-                      labelText: (focusNode.hasFocus || _optionControllers[i].text.isNotEmpty)
-                          ? 'Variant name'
-                          : 'Variant name e.g., ${_optionPlaceholders[i]}',
-                      border: const OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (_optionControllers.length > 1 &&
-                          (value == null || value.trim().isEmpty)) {
-                        return 'Option name is required.';
-                      }
-                      return null;
-                    },
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                  );
+              TextFormField(
+                controller: _optionControllers[i],
+                focusNode: _optionFocusNodes[i],
+                decoration: InputDecoration(
+                  labelText: 'Variant name',
+                  hintText: 'e.g., ${_optionPlaceholders[i]}',
+                  border: const OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Variant name is required';
+                  }
+                  return null;
                 },
+                autovalidateMode: AutovalidateMode.onUserInteraction,
               ),
               const SizedBox(height: 16),
               Text('Values (${_valueControllers[i].length})',
@@ -313,13 +255,9 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
   List<Widget> _buildValueFields(int optionIndex) {
     List<Widget> valueFields = [];
     for (int j = 0; j < _valueControllers[optionIndex].length; j++) {
-      final String hintText;
-      if (optionIndex < _valuePlaceholders.length &&
-          j < _valuePlaceholders[optionIndex].length) {
-        hintText = 'e.g., ${_valuePlaceholders[optionIndex][j]}';
-      } else {
-        hintText = 'Value';
-      }
+      final String hintText = (optionIndex < _valuePlaceholders.length && j < _valuePlaceholders[optionIndex].length)
+          ? 'e.g., ${_valuePlaceholders[optionIndex][j]}'
+          : 'Value';
 
       valueFields.add(Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
@@ -336,9 +274,9 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
                   border: InputBorder.none,
                 ),
                 validator: (value) {
-                  if (_valueControllers[optionIndex].length > 1 &&
-                      (value == null || value.trim().isEmpty)) {
-                    return 'Value is required.';
+                  // Unconditionally make value fields required.
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Value is required';
                   }
                   return null;
                 },
