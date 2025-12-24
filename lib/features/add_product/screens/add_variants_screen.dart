@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/features/add_product/models/variant_model.dart';
 
 class AddVariantsScreen extends StatefulWidget {
-  const AddVariantsScreen({super.key});
+  final List<VariantOption> initialVariants;
+  const AddVariantsScreen({super.key, this.initialVariants = const []});
 
   @override
   State<AddVariantsScreen> createState() => _AddVariantsScreenState();
@@ -23,7 +25,31 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
   @override
   void initState() {
     super.initState();
-    _addOption();
+    if (widget.initialVariants.isNotEmpty) {
+      _loadInitialVariants();
+    } else {
+      _addOption();
+    }
+  }
+
+  void _loadInitialVariants() {
+    for (var variant in widget.initialVariants) {
+      final optionController = TextEditingController(text: variant.name);
+      final focusNode = FocusNode();
+      _optionControllers.add(optionController);
+      _optionFocusNodes.add(focusNode);
+      focusNode.addListener(_onFocusChange);
+
+      final valueControllersForOption = <TextEditingController>[];
+      final valueFocusNodesForOption = <FocusNode>[];
+      for (var value in variant.values) {
+        valueControllersForOption.add(TextEditingController(text: value));
+        valueFocusNodesForOption.add(FocusNode());
+      }
+      _valueControllers.add(valueControllersForOption);
+      _valueFocusNodes.add(valueFocusNodesForOption);
+    }
+    setState(() {});
   }
 
   void _addOption() {
@@ -119,13 +145,27 @@ class _AddVariantsScreenState extends State<AddVariantsScreen> {
     });
   }
 
-  void _saveVariants() {
+ void _saveVariants() {
     if (_formKey.currentState!.validate()) {
-      if (_isFormSufficient()) { // Only pop if the form is also sufficient
-        Navigator.pop(context);
+      if (_isFormSufficient()) {
+        final variants = <VariantOption>[];
+        for (int i = 0; i < _optionControllers.length; i++) {
+          final optionName = _optionControllers[i].text.trim();
+          if (optionName.isNotEmpty) {
+            final values = _valueControllers[i]
+                .map((controller) => controller.text.trim())
+                .where((value) => value.isNotEmpty)
+                .toList();
+            if (values.isNotEmpty) {
+              variants.add(VariantOption(name: optionName, values: values));
+            }
+          }
+        }
+        Navigator.pop(context, variants);
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

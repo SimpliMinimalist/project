@@ -4,7 +4,10 @@ import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:myapp/features/add_product/models/product_model.dart';
+import 'package:myapp/features/add_product/models/product_variant_model.dart';
+import 'package:myapp/features/add_product/models/variant_model.dart';
 import 'package:myapp/features/add_product/screens/add_variants_screen.dart';
+import 'package:myapp/features/add_product/screens/edit_variant_screen.dart';
 import 'package:myapp/features/home/widgets/add_category_bottom_sheet.dart';
 import 'package:myapp/providers/category_provider.dart';
 import 'package:myapp/providers/product_provider.dart';
@@ -450,6 +453,40 @@ class _AddProductScreenState extends State<AddProductScreen> {
     });
   }
 
+  List<ProductVariant> _generateVariants(List<VariantOption> options) {
+    if (options.isEmpty) {
+      return [];
+    }
+
+    List<ProductVariant> variants = [];
+    final valueLists = options.map((o) => o.values).toList();
+    final combinations = _getCombinations(valueLists);
+
+    for (var combination in combinations) {
+      final attributes = <String, String>{};
+      for (int i = 0; i < options.length; i++) {
+        attributes[options[i].name] = combination[i];
+      }
+      variants.add(ProductVariant(attributes: attributes));
+    }
+
+    return variants;
+  }
+
+  List<List<T>> _getCombinations<T>(List<List<T>> lists) {
+    List<List<T>> result = [[]];
+    for (var list in lists) {
+      List<List<T>> newResult = [];
+      for (var item in list) {
+        for (var res in result) {
+          newResult.add([...res, item]);
+        }
+      }
+      result = newResult;
+    }
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     final titleTextStyle = Theme.of(context).textTheme.titleLarge;
@@ -596,18 +633,37 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 ),
                 const SizedBox(height: 16),
                 OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
+                  onPressed: () async {
+                    final result = await Navigator.push<List<VariantOption>>(
                       context,
-                      MaterialPageRoute(builder: (context) => const AddVariantsScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => AddVariantsScreen(
+                          initialVariants: _editedProduct.variants,
+                        ),
+                      ),
                     );
+                    if (result != null) {
+                      final newProductVariants = _generateVariants(result);
+                      setState(() {
+                        _editedProduct = _editedProduct.copyWith(
+                          variants: result,
+                          productVariants: newProductVariants,
+                        );
+                      });
+                    }
                   },
                   icon: const Icon(Icons.add),
-                  label: const Text('Add Product Variants'),
+                  label: Text(_editedProduct.productVariants.isEmpty
+                      ? 'Add Product Variants'
+                      : 'Edit Product Variants'),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
                   ),
-                )
+                ),
+                if (_editedProduct.productVariants.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  _buildVariantsList(),
+                ]
               ],
             ),
           ),
@@ -636,6 +692,45 @@ class _AddProductScreenState extends State<AddProductScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildVariantsList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _editedProduct.productVariants.length,
+      itemBuilder: (context, index) {
+        final variant = _editedProduct.productVariants[index];
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 4.0),
+          child: ListTile(
+            leading: const Icon(Icons.image, color: Colors.grey, size: 40),
+            title: Text(variant.name),
+            subtitle: Text(
+              '₹${variant.price.toStringAsFixed(2)} • ${variant.stock} available',
+              style: TextStyle(
+                color: variant.stock > 0 ? Colors.green : Colors.red,
+              ),
+            ),
+            onTap: () async {
+              final result = await Navigator.push<ProductVariant>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditVariantScreen(variant: variant),
+                ),
+              );
+              if (result != null) {
+                setState(() {
+                  final newVariants = List<ProductVariant>.from(_editedProduct.productVariants);
+                  newVariants[index] = result;
+                  _editedProduct = _editedProduct.copyWith(productVariants: newVariants);
+                });
+              }
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -808,6 +903,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
 extension ProductEquals on Product {
   bool equals(Product other) {
     const listEquals = ListEquality();
+    const productVariantEquality = ListEquality(ProductVariantEquality());
+
     return id == other.id &&
         name == other.name &&
         description == other.description &&
@@ -815,6 +912,28 @@ extension ProductEquals on Product {
         salePrice == other.salePrice &&
         stock == other.stock &&
         listEquals.equals(categories, other.categories) &&
-        listEquals.equals(images, other.images);
+        listEquals.equals(images, other.images) &&
+        listEquals.equals(variants, other.variants) &&
+        productVariantEquality.equals(productVariants, other.productVariants);
   }
+}
+
+class ProductVariantEquality implements Equality<ProductVariant> {
+  const ProductVariantEquality();
+
+  @override
+  bool equals(ProductVariant e1, ProductVariant e2) {
+    return e1.id == e2.id &&
+        e1.price == e2.price &&
+        e1.stock == e2.stock &&
+        const MapEquality().equals(e1.attributes, e2.attributes);
+  }
+
+  @override
+  int hash(ProductVariant e) {
+    return e.id.hashCode ^ e.price.hashCode ^ e.stock.hashCode ^ const MapEquality().hash(e.attributes);
+  }
+
+  @override
+  bool isValidKey(Object? o) => o is ProductVariant;
 }

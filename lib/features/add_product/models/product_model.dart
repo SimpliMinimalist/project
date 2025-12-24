@@ -1,5 +1,7 @@
 
 import 'package:flutter/foundation.dart';
+import 'package:myapp/features/add_product/models/product_variant_model.dart';
+import 'package:myapp/features/add_product/models/variant_model.dart';
 
 @immutable
 class Product {
@@ -13,6 +15,8 @@ class Product {
   final List<String> categories;
   final bool isDraft;
   final DateTime? savedAt;
+  final List<VariantOption> variants;
+  final List<ProductVariant> productVariants;
 
   const Product({
     required this.id,
@@ -25,6 +29,8 @@ class Product {
     this.categories = const [],
     this.isDraft = false,
     this.savedAt,
+    this.variants = const [],
+    this.productVariants = const [],
   });
 
   Product copyWith({
@@ -38,6 +44,8 @@ class Product {
     List<String>? categories,
     bool? isDraft,
     DateTime? savedAt,
+    List<VariantOption>? variants,
+    List<ProductVariant>? productVariants,
   }) {
     return Product(
       id: id ?? this.id,
@@ -50,6 +58,8 @@ class Product {
       categories: categories ?? this.categories,
       isDraft: isDraft ?? this.isDraft,
       savedAt: savedAt ?? this.savedAt,
+      variants: variants ?? this.variants,
+      productVariants: productVariants ?? this.productVariants,
     );
   }
 }
