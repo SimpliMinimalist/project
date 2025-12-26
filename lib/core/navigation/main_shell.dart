@@ -41,7 +41,7 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    final Color selectedColor = Theme.of(context).colorScheme.onPrimary;
+    final Color selectedColor = Theme.of(context).colorScheme.primary;
     final Color unselectedColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Scaffold(
@@ -53,7 +53,7 @@ class _MainShellState extends State<MainShell> {
         destinations: <Widget>[
           NavigationDestination(
             selectedIcon: SvgPicture.asset(
-              'assets/icons/store.svg',
+              'assets/icons/store_selected.svg',
               width: 24, height: 24,
               colorFilter: ColorFilter.mode(selectedColor, BlendMode.srcIn),
             ),
@@ -66,7 +66,7 @@ class _MainShellState extends State<MainShell> {
           ),
           NavigationDestination(
             selectedIcon: SvgPicture.asset(
-              'assets/icons/orders.svg',
+              'assets/icons/orders_selected.svg',
               width: 24, height: 24,
               colorFilter: ColorFilter.mode(selectedColor, BlendMode.srcIn),
             ),
@@ -79,7 +79,7 @@ class _MainShellState extends State<MainShell> {
           ),
           NavigationDestination(
             selectedIcon: SvgPicture.asset(
-              'assets/icons/profile.svg',
+              'assets/icons/profile_selected.svg',
               width: 24, height: 24,
               colorFilter: ColorFilter.mode(selectedColor, BlendMode.srcIn),
             ),
@@ -105,7 +105,7 @@ class _MainShellState extends State<MainShell> {
           icon: const Icon(Icons.close),
           onPressed: () => selectionProvider.clearSelection(),
         ),
-        title: Text('\${selectionProvider.selectedProducts.length} selected'),
+        title: Text('${selectionProvider.selectedProducts.length} selected'),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
