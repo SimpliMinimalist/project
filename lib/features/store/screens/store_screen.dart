@@ -181,16 +181,6 @@ class _StoreScreenState extends State<StoreScreen> {
                             width: 24, height: 24),
                         onPressed: () => context.push('/search'),
                       ),
-                      IconButton(
-                        icon: SvgPicture.asset('assets/icons/notification.svg',
-                            width: 24, height: 24),
-                        onPressed: () => context.push('/orders'),
-                      ),
-                      IconButton(
-                        icon: SvgPicture.asset('assets/icons/profile.svg',
-                            width: 24, height: 24),
-                        onPressed: () {},
-                      ),
                     ],
             ),
             SliverToBoxAdapter(
