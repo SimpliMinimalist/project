@@ -44,23 +44,26 @@ class _MainShellState extends State<MainShell> {
     return Scaffold(
       appBar: _buildAppBar(),
       body: widget.child,
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.store),
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (index) => _onItemTapped(index, context),
+        selectedIndex: _selectedIndex,
+        destinations: const <Widget>[
+          NavigationDestination(
+            selectedIcon: Icon(Icons.store),
+            icon: Icon(Icons.store_outlined),
             label: 'Store',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.article),
+            icon: Icon(Icons.article_outlined),
             label: 'Orders',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
             label: 'Profile',
           ),
         ],
-        currentIndex: _selectedIndex,
-        onTap: (index) => _onItemTapped(index, context),
       ),
     );
   }
