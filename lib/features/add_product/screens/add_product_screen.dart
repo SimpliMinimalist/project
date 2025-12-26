@@ -8,7 +8,7 @@ import 'package:myapp/features/add_product/models/product_variant_model.dart';
 import 'package:myapp/features/add_product/models/variant_model.dart';
 import 'package:myapp/features/add_product/screens/add_variants_screen.dart';
 import 'package:myapp/features/add_product/screens/edit_variant_screen.dart';
-import 'package:myapp/features/home/widgets/add_category_bottom_sheet.dart';
+import 'package:myapp/features/store/widgets/add_category_bottom_sheet.dart';
 import 'package:myapp/providers/category_provider.dart';
 import 'package:myapp/providers/product_provider.dart';
 import 'package:flutter/material.dart';

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
@@ -6,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:myapp/features/add_product/models/product_model.dart';
 import 'package:myapp/features/add_product/screens/add_product_screen.dart';
-import 'package:myapp/features/home/widgets/add_category_bottom_sheet.dart';
+import 'package:myapp/features/store/widgets/add_category_bottom_sheet.dart';
 import 'package:myapp/providers/category_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -15,14 +14,14 @@ import '../../../providers/store_provider.dart';
 import '../../add_product/widgets/add_product_fab.dart';
 import '../../add_product/widgets/product_card.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class StoreScreen extends StatefulWidget {
+  const StoreScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<StoreScreen> createState() => _StoreScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _StoreScreenState extends State<StoreScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _isFabVisible = true;
   bool _isSelectionMode = false;
