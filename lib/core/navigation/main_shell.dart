@@ -41,26 +41,53 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final Color selectedColor = Theme.of(context).colorScheme.onPrimary;
+    final Color unselectedColor = Theme.of(context).colorScheme.onSurfaceVariant;
+
     return Scaffold(
       appBar: _buildAppBar(),
       body: widget.child,
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (index) => _onItemTapped(index, context),
         selectedIndex: _selectedIndex,
-        destinations: const <Widget>[
+        destinations: <Widget>[
           NavigationDestination(
-            selectedIcon: Icon(Icons.store),
-            icon: Icon(Icons.store_outlined),
+            selectedIcon: SvgPicture.asset(
+              'assets/icons/store.svg',
+              width: 24, height: 24,
+              colorFilter: ColorFilter.mode(selectedColor, BlendMode.srcIn),
+            ),
+            icon: SvgPicture.asset(
+              'assets/icons/store.svg',
+              width: 24, height: 24,
+              colorFilter: ColorFilter.mode(unselectedColor, BlendMode.srcIn),
+            ),
             label: 'Store',
           ),
           NavigationDestination(
-            selectedIcon: Icon(Icons.article),
-            icon: Icon(Icons.article_outlined),
+            selectedIcon: SvgPicture.asset(
+              'assets/icons/orders.svg',
+              width: 24, height: 24,
+              colorFilter: ColorFilter.mode(selectedColor, BlendMode.srcIn),
+            ),
+            icon: SvgPicture.asset(
+              'assets/icons/orders.svg',
+              width: 24, height: 24,
+              colorFilter: ColorFilter.mode(unselectedColor, BlendMode.srcIn),
+            ),
             label: 'Orders',
           ),
           NavigationDestination(
-            selectedIcon: Icon(Icons.person),
-            icon: Icon(Icons.person_outline),
+            selectedIcon: SvgPicture.asset(
+              'assets/icons/profile.svg',
+              width: 24, height: 24,
+              colorFilter: ColorFilter.mode(selectedColor, BlendMode.srcIn),
+            ),
+            icon: SvgPicture.asset(
+              'assets/icons/profile.svg',
+              width: 24, height: 24,
+              colorFilter: ColorFilter.mode(unselectedColor, BlendMode.srcIn),
+            ),
             label: 'Profile',
           ),
         ],
